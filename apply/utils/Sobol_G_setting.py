@@ -34,7 +34,7 @@ def set_sobol_g_func():
     a[11:15] = [8, 13, 13.5, 16]
     a[15:] = [70, 75, 80, 85, 90, 99]
 
-    x_names = ['x' + str(i) for i in range(21)]
+    x_names = ['x' + str(i+1) for i in range(21)]
     len_params = len(x_names)
     x_bounds = np.zeros((21, 2))
     x_bounds[:, 0] = 0
