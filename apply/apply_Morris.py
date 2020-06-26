@@ -1,45 +1,39 @@
 import pandas as pd
 import numpy as np
-import SALib
 from toposort import toposort, toposort_flatten
 import json
-
-%load_ext autoreload
-%autoreload 2
-
-# import settings for Sobol G-function and returns necessary elements
-from utils.Sobol_G import g_func
-from utils.Sobol_G_setting import  set_sobol_g_func
-
+import os
 #sensitivity analysis and partial sorting 
 from SALib.sample import morris as sample_morris
-from SALib.sample import saltelli as sample_saltelli
 from SALib.analyze import morris as analyze_morris
-from SALib.analyze import sobol as analyze_sobol
 from SALib.sample import latin as sample_latin
 from SALib.test_functions.Sobol_G import evaluate, total_sensitivity_index as total_sa
 
-from saffix.utils.group_fix import group_fix
-from saffix.utils.format_convert import to_df
-
-import os
+# import settings for Sobol G-function and returns necessary elements
+%load_ext autoreload
+%autoreload 2
+from utils.Sobol_G_setting import set_sobol_g_func
+from utils.group_fix import group_fix, to_df
 
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-f_dir = '../../output/sobol_g/morris/symmetry/'
-cache_file = '{}{}'.format(f_dir, 'morris_2.json')
+f_dir = '../../../Research/G_func_ff/output/morris/revision/'
+cache_file = '{}{}'.format(f_dir, 'morris.json')
 
 if not os.path.exists(cache_file):
     # Loop of Morris
     partial_order = {}
     file_exist = False
     mu_st = {}
+    rank_low_dt = {}
+    rank_up_dt = {}
+    sigma_dt = {}
     for i in range(10, 310, 10):
         # partial ordering
         x_morris= sample_morris.sample(problem, i, num_levels=4)
         y_morris = evaluate(x_morris, a)
         sa_dict= analyze_morris.analyze(problem, x_morris, y_morris, num_resamples=1000, conf_level=0.95, seed=88)
         mu_star_rank_dict = sa_dict['mu_star'].argsort().argsort()
-        # use toposort find parameter sa block
+        # use toposort to find parameter sa block
         conf_low = sa_dict['mu_star_rank_conf'][0]
         conf_up = sa_dict['mu_star_rank_conf'][1]
         rank_conf = {j:None for j in range(len_params)}
@@ -58,7 +52,10 @@ if not os.path.exists(cache_file):
 
         partial_order['result_'+str(i)] = {j: list(order_temp[j]) for j in range(len(order_temp))}
 #         #save results of mu_star
-        mu_st['result_'+str(i)] = sa_dict['mu_star']         
+        mu_st['result_'+str(i)] = sa_dict['mu_star']
+        rank_low_dt['result_'+str(i)] = conf_low
+        rank_up_dt['result_'+str(i)] =  conf_up
+        sigma_dt['result_'+str(i)] = sa_dict['sigma']
         
     with open(cache_file, 'w') as fp:
         json.dump(partial_order, fp, indent=2)
@@ -67,9 +64,12 @@ else:
     with open(cache_file, 'r') as fp:
         partial_order = json.load(fp)
 
+# save sensitivity indices
+mu_st_df = pd.DataFrame.from_dict(mu_st)
+mu_st_df.index = x_names
+mu_st_df.to_csv(f'{f_dir}mu_star.csv', index=True)
 
 # calculate results with fixed parameters
-
 # x_all = sample_latin.sample(problem, 10000, seed=101)
 # y_true = g_func(x_all, a)
 # y_true_ave = np.average(y_true)
