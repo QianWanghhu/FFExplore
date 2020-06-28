@@ -1,18 +1,9 @@
 import pandas as pd
 import numpy as np
 import SALib
-%load_ext autoreload
-%autoreload 2
-
-from saffix.sobol_g.Sobol_G import g_func
 from toposort import toposort, toposort_flatten
 import json
-
-# import settings for Sobol G-function and returns necessary elements
-from saffix.sobol_g.Sobol_G_setting import  set_sobol_g_func
-a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-
-
+import os
 #sensitivity analysis and partial sorting 
 from SALib.sample import saltelli as sample_saltelli
 from SALib.analyze import sobol as analyze_sobol
@@ -21,21 +12,15 @@ from SALib.test_functions.Sobol_G import evaluate, \
     total_sensitivity_index as total_sa, sensitivity_index as main_sa,\
     partial_first_order_variance as pfoa, \
     total_variance
+# import settings for Sobol G-function and returns necessary elements
+%load_ext autoreload
+%autoreload 2
+from utils.Sobol_G_setting import set_sobol_g_func
+from utils.group_fix import group_fix, to_df
+a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
 
-from saffix.utils.group_fix import group_fix
-from saffix.utils.format_convert import to_df
-
-import os
-
-# calculate analytical_total_effects
-# a = [0, 1, 4.5, 9, 99, 99, 99, 99]
-closed_total = total_sa(a)
-closed_main = main_sa(a)
-analytical_variance = pfoa(a)
-
-
-f_dir = '../../output/sobol_g/sobol/second_order/'
-cache_file = '{}{}'.format(f_dir, 'sobol_order_test.json')
+f_dir = '../../../Research/G_func_ff/output/sobol/revision/'
+cache_file = '{}{}'.format(f_dir, 'sobol.json')
 
 if not os.path.exists(cache_file):
     # Loop of Morris
@@ -83,27 +68,29 @@ else:
         partial_order = json.load(fp)
 
 
+
 # calculate results with fixed parameters
+x_all = sample_latin.sample(problem, 10000, seed=101)
+y_true = evaluate(x_all, a)
+y_true_ave = np.average(y_true)
+keys_list = list(partial_order.keys())[:12]
+partial_order = {k:v for k, v in partial_order.items() if k in keys_list}
+rand = np.random.randint(0, y_true.shape[0], size=(1000, y_true.shape[0]))
+defaults_list = [0.25]
+for x_default in defaults_list: 
+    mae_conf, var_conf = {key: None for key in keys_list}, {key: None for key in keys_list}
+    var_fix = {key: None for key in keys_list}
+    mae_fix = {key: None for key in keys_list}
+    prsn_fix = {key: None for key in keys_list}
+    pearsonr_conf = {key: None for key in keys_list}
+    for key in keys_list:
+        mae_fix[key], var_fix[key], prsn_fix[key], mae_conf[key], var_conf[key], pearsonr_conf[key] \
+        = group_fix(partial_order[key], evaluate, x_all, y_true, x_default, rand, a, file_exist)
 
-# x_all = sample_latin.sample(problem, 10000, seed=101)
-# y_true = g_func(x_all, a)
-# y_true_ave = np.average(y_true)
-# keys_list = list(partial_order.keys())
-# mean_fix = {key: None for key in keys_list}
-# var_fix = {key: None for key in keys_list}
-# mae_fix = {key: None for key in keys_list}
-# prsn_fix = {key: None for key in keys_list}
-# for key in keys_list:
-#     mean_fix[key], mae_fix[key], var_fix[key], prsn_fix[key]= group_fix(partial_order[key], g_func, x_all, y_true, 0.75, a)
-
-
-# # convert the result into dataframe
-# dict_lists = [mean_fix, mae_fix, var_fix, prsn_fix]
-# f_names = ['mean', 'mae', 'var', 'pearsonr']
-# for ele in range(len(dict_lists)):
-#     df = to_df(partial_order, dict_lists[ele], y_true_ave)
-#     df.to_csv('{}{}{}{}'.format(f_dir,'0.75_2/', f_names[ele], '.csv'))
-
-# # If write the total and main indices to file
-# pd.DataFrame.from_dict(sa_main).to_csv('{}{}'.format(f_dir, 'main_indices2.csv'))
-# pd.DataFrame.from_dict(sa_total).to_csv('{}{}'.format(f_dir, 'total_indices2.csv'))
+    # convert the result into dataframe
+    dict_lists = [mae_fix, var_fix, prsn_fix, mae_conf, var_conf, pearsonr_conf]
+    f_names = ['mae', 'var', 'pearsonr', 'mae_conf', 'var_conf', 'pearsonr_conf']
+    for ele in range(len(dict_lists)):
+        df = to_df(partial_order, dict_lists[ele])
+        df.to_csv(f'{f_dir}{f_names[ele]}.csv')
+# End for()        
