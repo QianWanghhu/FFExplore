@@ -10,28 +10,24 @@ from SALib.sample import latin as sample_latin
 from SALib.test_functions.Sobol_G import evaluate, total_sensitivity_index as total_sa
 
 # import settings for Sobol G-function and returns necessary elements
-%load_ext autoreload
-%autoreload 2
 from utils.Sobol_G_setting import set_sobol_g_func
 from utils.group_fix import group_fix, to_df
 
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
 f_dir = '../../../Research/G_func_ff/output/morris/revision/'
-cache_file = '{}{}'.format(f_dir, 'morris.json')
+cache_file = '{}{}'.format(f_dir, 'morris_test.json')
 
 if not os.path.exists(cache_file):
     # Loop of Morris
-    partial_order = {}
     file_exist = False
-    mu_st = {}
-    rank_low_dt = {}
-    rank_up_dt = {}
-    sigma_dt = {}
-    for i in range(10, 310, 10):
+    partial_order = {}
+    mu_st, sigma_dt = {}
+    rank_low_dt, rank_up_dt,  = {}
+    for i in range(20, 100, 10):
         # partial ordering
         x_morris= sample_morris.sample(problem, i, num_levels=4)
         y_morris = evaluate(x_morris, a)
-        sa_dict= analyze_morris.analyze(problem, x_morris, y_morris, num_resamples=1000, conf_level=0.95, seed=88)
+        sa_dict= analyze_morris.analyze(problem, x_morris, y_morris, num_resamples=1000, conf_level=0.95, seed=123)
         mu_star_rank_dict = sa_dict['mu_star'].argsort().argsort()
         # use toposort to find parameter sa block
         conf_low = sa_dict['mu_star_rank_conf'][0]
@@ -56,44 +52,40 @@ if not os.path.exists(cache_file):
         rank_low_dt['result_'+str(i)] = conf_low
         rank_up_dt['result_'+str(i)] =  conf_up
         sigma_dt['result_'+str(i)] = sa_dict['sigma']
-        
+
     with open(cache_file, 'w') as fp:
         json.dump(partial_order, fp, indent=2)
 else:
     file_exist = True
     with open(cache_file, 'r') as fp:
         partial_order = json.load(fp)
-
-# save sensitivity indices
-mu_st_df = pd.DataFrame.from_dict(mu_st)
-mu_st_df.index = x_names
-mu_st_df.to_csv(f'{f_dir}mu_star.csv', index=True)
+# End if-else
 
 # calculate results with fixed parameters
-# x_all = sample_latin.sample(problem, 10000, seed=101)
-# y_true = g_func(x_all, a)
-# y_true_ave = np.average(y_true)
-# keys_list = list(partial_order.keys())[0:29]
-# partial_order = {k:v for k, v in partial_order.items() if k in keys_list}
-# # run more for default values evaluation
-# # put all default values to test into a list
-# defaults_list = np.append([0, 0.1, 0.4, 0.5], np.linspace(0.2, 0.3, 11))
+x_all = sample_latin.sample(problem, 10000, seed=101)
+y_true = evaluate(x_all, a)
+y_true_ave = np.average(y_true)
+keys_list = list(partial_order.keys())[0:11]
+partial_order = {k:v for k, v in partial_order.items() if k in keys_list}
+rand = np.random.randint(0, y_true.shape[0], size=(1000, y_true.shape[0]))
+# run more for default values evaluation
+# put all default values to test into a list
+# defaults_list = np.append([0, 0.1, 0.2, 0.4, 0.5], np.round(np.linspace(0.21, 0.3, 10), 2))
 # defaults_list.sort()
-# # defaults_list = [0.75]
-# for x_default in defaults_list: 
-#     mean_fix = {key: None for key in keys_list}
-#     var_fix = {key: None for key in keys_list}
-#     mae_fix = {key: None for key in keys_list}
-#     prsn_fix = {key: None for key in keys_list}
-#     result_fix = {key: None for key in keys_list}
-#     for key in keys_list:
-#         mean_fix[key], mae_fix[key], var_fix[key], prsn_fix[key]= group_fix(partial_order[key], 
-#         g_func, x_all, y_true, x_default, a, file_exist)
+defaults_list = [0.25]
+for x_default in defaults_list: 
+    mae, var, ppmc = {}, {}
+    var_low, var_up = {}, {}
+    ppmc_low, ppmc_up = {}, {}
+    mae_low, mae_up = {}, {}
+    for key in keys_list:
+        mae[key], var[key], ppmc[key], mae_low[key], \
+        var_low[key], ppmc_low[key], mae_up[key], var_up[key], ppmc_up[key] = \
+        group_fix(partial_order[key], evaluate, x_all, y_true, x_default, rand, a, file_exist)
 
-#     # convert the result into dataframe
-
-#     dict_lists = [mean_fix, mae_fix, var_fix, prsn_fix]
-#     f_names = ['mean', 'mae', 'var', 'pearsonr']
-#     for ele in range(len(dict_lists)):
-#         df = to_df(partial_order, dict_lists[ele], y_true_ave)
-#         df.to_csv('{}{}{}{}{}{}'.format(f_dir, 'default_eval_0127/', str(round(x_default, 2)), '/', f_names[ele], '.csv'))
+    # convert the result into dataframe
+    dict_lists = [mae, var, ppmc, mae_low, var_low, ppmc_low, mae_up, var_up, ppmc_up]
+    # f_names = ['mae', 'var', 'pearson', 'mae_low', 'var_low', 'pearson_low', 'mae_up', 'var_up', 'pearson_up']
+    # for ele in range(len(dict_lists)):
+    #     df = to_df(partial_order, dict_lists[ele])
+    #     df.to_csv(f'{f_dir}test/seed123/{f_names[ele]}.csv')
