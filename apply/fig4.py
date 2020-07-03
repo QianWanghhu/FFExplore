@@ -8,10 +8,8 @@ from utils.plots import bg_color, show_cells
 
 # import data
 f_dir = '../../../Research/G_func_ff/output/morris/revision/test/seed123/'
-f_name = ['mae.csv', 'mae_conf.csv']
-df1 = pd.read_csv('{}{}'.format(f_dir, f_name[0])).set_index('Unnamed: 0')
-df2 = pd.read_csv('{}{}'.format(f_dir, f_name[1])).set_index('Unnamed: 0')
-df = df1 + df2
+f_name = 'mae_up.csv'
+df = pd.read_csv('{}{}'.format(f_dir, f_name)).set_index('Unnamed: 0')
 # df.to_csv(f'{f_dir}mae_up.csv', index=True)
 # df = df[df.columns[1:12]]
 df = df.rename(columns={i: i.split('_')[1] for i in df.columns})
@@ -80,4 +78,4 @@ styled_table = (df.style.format("{:.1%}").\
 )
 styled_table
 # export styler into excel
-# styled_table.to_excel('{}{}'.format(f_dir, 'table_mae.xlsx'), engine='openpyxl');
+styled_table.to_excel('{}{}'.format(f_dir, 'table_mae.xlsx'), engine='openpyxl');
