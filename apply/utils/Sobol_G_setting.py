@@ -1,5 +1,4 @@
 import numpy as np
-from .Sobol_G import g_func
 
 # define efficients a and x variables according to Sheikholeslami (2019)
 # start
