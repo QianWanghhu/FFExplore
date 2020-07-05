@@ -14,15 +14,23 @@ Companion code for the paper submitted to Reliability Engineering and System Saf
 
     TODO: Create environment spec.
 
-2. Clone and install modified version of SALib package.
+2. Clone and install other packages:
+
+   2.1. Modified version of SALib package.
 
    Modifications include changes to return confidence intervals for parameter groupings.
 
     (TODO: Installation instructions)
+   
+   2.2 PAWN Package
 
-3. Adjust output directory settings in `apply/settings.py`
+   PAWN analyses were conducted with the package available for download after registration.
 
-4. Perform experiments:
+   https://www.safetoolbox.info/register-for-download/
+
+4. Adjust output directory settings in `apply/settings.py`
+
+5. Perform experiments:
 
    4.1. Run PAWN from the `apply/mp_pawn` directory, for example:
 
@@ -30,6 +38,6 @@ Companion code for the paper submitted to Reliability Engineering and System Saf
 
    4.2. Run `apply/apply_morris.py` and `apply/apply_Sobol.py`
 
-5. To recreate plots, run `apply/create_figures.py`
+6. To recreate plots, run `apply/create_figures.py`
 
    Note that an Excel file will be created in the case of Figure 4.
