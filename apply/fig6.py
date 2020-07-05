@@ -1,4 +1,5 @@
-# import packages
+"""Create figure 6 for paper."""
+
 import pandas as pd
 import numpy as np
 import json

@@ -1,3 +1,5 @@
+"""Create figure 4 for paper."""
+
 import numpy as np
 import pandas as pd
 import os
