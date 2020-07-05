@@ -85,8 +85,8 @@ def group_fix(partial_result, func, x, y_true, x_default,
 
     # store results from fixing parameters in dict
     mae, var, ppmc = {}, {}, {}
-    mae_up, var_up, ppmc_low = {}, {}, {}
-    mae_low, var_low, ppmc_up = {}, {}, {}
+    mae_high, var_high, ppmc_high = {}, {}, {}
+    mae_low, var_low, ppmc_low = {}, {}, {}
     ind_fix = []
     
     for i in range(num_group, -1, -1):
@@ -100,7 +100,7 @@ def group_fix(partial_result, func, x, y_true, x_default,
                 ind_fix.extend(partial_result[i])
             except NameError:
                 ind_fix = partial_result[i]
-        ind_fix.sort()        
+        ind_fix.sort()
 
         # check whether results existing        
         skip_calcul = results_exist(ind_fix, pool_results)
@@ -126,28 +126,27 @@ def group_fix(partial_result, func, x, y_true, x_default,
             # End for
             
             mae[i], var[i], ppmc[i] = mae_bt.mean(), var_bt.mean(), ppmc_bt.mean()
-            var_low[i], var_up[i] = np.quantile(var_bt, [0.025, 0.975])
-            ppmc_low[i], ppmc_up[i] = np.quantile(ppmc_bt, [0.025, 0.975])
-            mae_low[i], mae_up[i] = np.quantile(mae_bt, [0.025, 0.975])
+            var_low[i], var_high[i] = np.quantile(var_bt, [0.025, 0.975])
+            ppmc_low[i], ppmc_high[i] = np.quantile(ppmc_bt, [0.025, 0.975])
+            mae_low[i], mae_high[i] = np.quantile(mae_bt, [0.025, 0.975])
 
             # update pool_results
             measure_list = [
-                            mae[i], var[i], ppmc[i], mae_low[i], mae_up[i], 
-                            var_low[i], var_up[i],ppmc_low[i], ppmc_up[i],
+                            mae[i], var[i], ppmc[i], mae_low[i], mae_high[i], 
+                            var_low[i], var_high[i],ppmc_low[i], ppmc_high[i],
                             ]
 
             pool_results = pool_update(ind_fix, measure_list, pool_results)
         else:
             # map index to calculated values
-            [mae[i], var[i], ppmc[i], mae_low[i], mae_up[i],
-            var_low[i], var_up[i], ppmc_low[i], ppmc_up[i]] = skip_calcul
+            [mae[i], var[i], ppmc[i], mae_low[i], mae_high[i],
+            var_low[i], var_high[i], ppmc_low[i], ppmc_high[i]] = skip_calcul
         # End if
     # End for()
 
     dict_return = {'mae': mae, 'var': var, 'ppmc': ppmc,
                     'mae_low': mae_low, 'var_low': var_low, 'ppmc_low': ppmc_low,
-                    'mae_up': mae_up, 'var_up': var_up, 'ppmc_up': ppmc_up}
-    # End for()
+                    'mae_high': mae_high, 'var_high': var_high, 'ppmc_high': ppmc_high}
 
     return dict_return, pool_results
 
