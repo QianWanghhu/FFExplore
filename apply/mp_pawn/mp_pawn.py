@@ -29,16 +29,13 @@ from saffix.utils.format_convert import to_df
 from saffix.sobol_g.Sobol_G_setting import  set_sobol_g_func
 
 
-def mp_pawn(s_start, s_end, step, tuning_list, f_dir):
+def mp_pawn(s_start, s_end, step, tuning_list, f_dir, Nboot=1000):
 
     a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
 
     distr_fun = [st.uniform] * len_params
     distr_par = [[x_bounds[i][0], x_bounds[i][1] - x_bounds[i][0]] 
                  for i in range(len_params)]
-
-    # Use bootstrapping to derive confidence bounds:
-    Nboot = 1000
 
     for tuning in tuning_list:
         cache_file = f'{f_dir}pawn_{tuning}_{s_start}-{s_end}_{step}.json'
