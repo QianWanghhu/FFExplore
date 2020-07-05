@@ -3,17 +3,22 @@ import pandas as pd
 
 def to_df(partial_order, fix_dict):
     """
-    Help function to convert difference between 
-    conditioned and unconditioned into dataframe.
-    Parameters:
-    ===========
-    partial_order : dict, partial ranking of parameters
-    fix_dict : dict, difference between conditioned and unconditional model results.
-                (each dict result returned from group_fix / pce_group_fix)
+    Convert difference between conditioned and unconditioned 
+    into dataframe.
 
-    Returns:
-    ========
-    fix_df : df, formatted fix_dict
+    Parameters
+    ----------
+    partial_order : dict, 
+        partial ranking of parameters
+
+    fix_dict : dict, 
+        difference between conditioned and unconditional model results.
+        (each dict result returned from group_fix / pce_group_fix)
+
+    Returns
+    ----------
+    fix_df : df, 
+        formatted fix_dict
     """
     keys_list = list(partial_order.keys())
 
@@ -35,15 +40,23 @@ def to_df(partial_order, fix_dict):
     return fix_df
 
 def partial_rank(len_params, conf_low, conf_up):
-    """
-    Parameters:
-    ===========
-    len_params: int, the number of parameters
-    conf_low, conf_up : numpy.ndarray, lower and upper bounds of confidence intervals of parameters
+    """Perform partial ranking.
 
-    Return:
-    =======
-    rank_list: list of partial rak
+    Parameters
+    ----------
+    len_params : int, 
+        Number of parameters
+
+    conf_low : numpy.ndarray, 
+        Lower confidence interval values for each parameter
+
+    conf_up : numpy.ndarray, 
+        Upper confidence interval values for each parameter
+
+    Returns
+    ----------
+    rank_list: dict,
+        list of partial rank
     """
     rank_conf = {j:None for j in range(len_params)}
     for j in range(len_params):
@@ -57,5 +70,5 @@ def partial_rank(len_params, conf_low, conf_up):
             for ele in list_temp[0]:
                 set_temp.add(ele)
         abs_sort[m] = set_temp
-        # rank_list = list(toposort(abs_sort))
+
     return abs_sort
