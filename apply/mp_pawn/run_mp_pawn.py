@@ -19,7 +19,7 @@ from mp_pawn import mp_pawn
 
 
 example_text = '''usage example:
-python run_mp_pawn.py --sample_range 1600 2000 --step 100 --tuning 2 4 --ncores 4
+python run_mp_pawn.py --sample_range 1600 2000 --step 100 --tuning 2 4 --ncores 4 --fdir [output directory]
 '''
 
 parser = argparse.ArgumentParser(description='pawn multiple PAWN processes',
