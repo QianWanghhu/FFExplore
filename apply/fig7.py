@@ -36,8 +36,8 @@ df=df.astype('float')
 
 def plot_shadow(col_name, ax, ylim=None):
     df[col_name].plot(kind='line', marker='o', linewidth=1, style='--', ms=3, ax=ax)
-    ax.fill_between(df.index, df[f'{col_name}_low', 'group1'], df[f'{col_name}_up', 'group1'], color='lightsteelblue')
-    ax.fill_between(df.index, df[f'{col_name}_low', 'group2'], df[f'{col_name}_up', 'group2'], color='moccasin')
+    ax.fill_between(df.index, df[f'{col_name}_low', 'group1'], df[f'{col_name}_high', 'group1'], color='lightsteelblue')
+    ax.fill_between(df.index, df[f'{col_name}_low', 'group2'], df[f'{col_name}_high', 'group2'], color='moccasin')
     ax.set_xlim(-0.01, 0.51)
     if not (ylim==None):
         ax.set_ylim(ylim[0], ylim[1])
