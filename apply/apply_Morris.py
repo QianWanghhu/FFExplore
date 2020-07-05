@@ -17,10 +17,10 @@ from utils.Sobol_G_setting import set_sobol_g_func
 from utils.group_fix import group_fix
 from utils.partial_sort import to_df, partial_rank
 
+from settings import MORRIS_DATA_DIR
 
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-f_dir = '../../../Research/G_func_ff/output/morris/revision/'
-cache_file = '{}{}'.format(f_dir, 'morris_test.json')
+cache_file = '{}{}'.format(MORRIS_DATA_DIR, 'morris_test.json')
 
 # calculate results with fixed parameters
 x_all = sample_latin.sample(problem, 1000, seed=101)
