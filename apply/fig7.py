@@ -18,8 +18,8 @@ f_default = np.append([0, 0.1, 0.4, 0.5], np.linspace(0.2, 0.3, 11))
 f_default.sort()
 f_default = [str(round(i, 2)) for i in f_default]
 f_default[0] = '0.0'
-names = ['mae', 'var', 'pearson', 'mae_high', 'var_high', 
-        'pearson_high', 'mae_low', 'var_low', 'pearson_low']
+names = ['mae', 'var', 'pearson', 'mae_upper', 'var_upper', 
+        'pearson_upper', 'mae_lower', 'var_lower', 'pearson_lower']
 
 df = {}
 for fn in names:
@@ -36,8 +36,8 @@ df=df.astype('float')
 
 def plot_shadow(col_name, ax, ylim=None):
     df[col_name].plot(kind='line', marker='o', linewidth=1, style='--', ms=3, ax=ax)
-    ax.fill_between(df.index, df[f'{col_name}_low', 'group1'], df[f'{col_name}_high', 'group1'], color='lightsteelblue')
-    ax.fill_between(df.index, df[f'{col_name}_low', 'group2'], df[f'{col_name}_high', 'group2'], color='moccasin')
+    ax.fill_between(df.index, df[f'{col_name}_lower', 'group1'], df[f'{col_name}_upper', 'group1'], color='lightsteelblue')
+    ax.fill_between(df.index, df[f'{col_name}_lower', 'group2'], df[f'{col_name}_upper', 'group2'], color='moccasin')
     ax.set_xlim(-0.01, 0.51)
     if not (ylim==None):
         ax.set_ylim(ylim[0], ylim[1])

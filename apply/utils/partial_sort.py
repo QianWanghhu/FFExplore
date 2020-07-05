@@ -39,7 +39,7 @@ def to_df(partial_order, fix_dict):
     fix_df = pd.DataFrame.from_dict(fix_df)
     return fix_df
 
-def partial_rank(len_params, conf_low, conf_up):
+def partial_rank(len_params, conf_lower, conf_upper):
     """Perform partial ranking.
 
     Parameters
@@ -47,10 +47,10 @@ def partial_rank(len_params, conf_low, conf_up):
     len_params : int, 
         Number of parameters
 
-    conf_low : numpy.ndarray, 
+    conf_lower : numpy.ndarray, 
         Lower confidence interval values for each parameter
 
-    conf_up : numpy.ndarray, 
+    conf_upper : numpy.ndarray, 
         Upper confidence interval values for each parameter
 
     Returns
@@ -60,11 +60,11 @@ def partial_rank(len_params, conf_low, conf_up):
     """
     rank_conf = {j:None for j in range(len_params)}
     for j in range(len_params):
-        rank_conf[j] = [conf_low[j], conf_up[j]]  
+        rank_conf[j] = [conf_lower[j], conf_upper[j]]
 
     abs_sort= {j:None for j in range(len_params)}
     for m in range(len_params):
-        list_temp = np.where(conf_low >= conf_up[m])
+        list_temp = np.where(conf_lower >= conf_upper[m])
         set_temp = set()
         if len(list_temp) > 0:
             for ele in list_temp[0]:

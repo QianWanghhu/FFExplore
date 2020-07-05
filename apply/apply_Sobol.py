@@ -58,9 +58,9 @@ if not file_exist:
                     y_sobol, calc_second_order=False, num_resamples=1000, conf_level=0.95)
 
         # use toposort find parameter sa block
-        conf_low = sa_sobol['total_rank_ci'][0]
-        conf_up = sa_sobol['total_rank_ci'][1]
-        abs_sort = partial_rank(len_params, conf_low, conf_up)
+        conf_lower = sa_sobol['total_rank_ci'][0]
+        conf_upper = sa_sobol['total_rank_ci'][1]
+        abs_sort = partial_rank(len_params, conf_lower, conf_upper)
         rank_list = list(toposort(abs_sort))
 
         key = 'result_'+str(i)

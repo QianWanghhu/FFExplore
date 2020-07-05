@@ -59,22 +59,22 @@ def group_fix(partial_result, func, x, y_true, x_default,
             Changes in pearson correlation coefficients 
             of the func results due to fixing parameters
 
-        mae_low : dict,
+        mae_lower : dict,
             Lowest absolute MAE values
 
-        var_low :  dict, 
+        var_lower :  dict, 
             Lowest variance
 
-        ppmc_low :  dict,
+        ppmc_lower :  dict,
             Lowest PPMC
 
-        mae_high :  dict,
+        mae_upper :  dict,
             Largest absolute MAE values
 
-        var_high :  dict,
+        var_upper :  dict,
             Largest variance values
 
-        ppmc_high :  dict,
+        ppmc_upper :  dict,
             Largest PPMC values
 
     pool_results:
@@ -85,8 +85,8 @@ def group_fix(partial_result, func, x, y_true, x_default,
 
     # store results from fixing parameters in dict
     mae, var, ppmc = {}, {}, {}
-    mae_high, var_high, ppmc_high = {}, {}, {}
-    mae_low, var_low, ppmc_low = {}, {}, {}
+    mae_upper, var_upper, ppmc_upper = {}, {}, {}
+    mae_lower, var_lower, ppmc_lower = {}, {}, {}
     ind_fix = []
     
     for i in range(num_group, -1, -1):
@@ -126,27 +126,27 @@ def group_fix(partial_result, func, x, y_true, x_default,
             # End for
             
             mae[i], var[i], ppmc[i] = mae_bt.mean(), var_bt.mean(), ppmc_bt.mean()
-            var_low[i], var_high[i] = np.quantile(var_bt, [0.025, 0.975])
-            ppmc_low[i], ppmc_high[i] = np.quantile(ppmc_bt, [0.025, 0.975])
-            mae_low[i], mae_high[i] = np.quantile(mae_bt, [0.025, 0.975])
+            var_lower[i], var_upper[i] = np.quantile(var_bt, [0.025, 0.975])
+            ppmc_lower[i], ppmc_upper[i] = np.quantile(ppmc_bt, [0.025, 0.975])
+            mae_lower[i], mae_upper[i] = np.quantile(mae_bt, [0.025, 0.975])
 
             # update pool_results
             measure_list = [
-                            mae[i], var[i], ppmc[i], mae_low[i], mae_high[i], 
-                            var_low[i], var_high[i],ppmc_low[i], ppmc_high[i],
+                            mae[i], var[i], ppmc[i], mae_lower[i], mae_upper[i], 
+                            var_lower[i], var_upper[i],ppmc_lower[i], ppmc_upper[i],
                             ]
 
             pool_results = pool_update(ind_fix, measure_list, pool_results)
         else:
             # map index to calculated values
-            [mae[i], var[i], ppmc[i], mae_low[i], mae_high[i],
-            var_low[i], var_high[i], ppmc_low[i], ppmc_high[i]] = skip_calcul
+            [mae[i], var[i], ppmc[i], mae_lower[i], mae_upper[i],
+            var_lower[i], var_upper[i], ppmc_lower[i], ppmc_upper[i]] = skip_calcul
         # End if
     # End for()
 
     dict_return = {'mae': mae, 'var': var, 'ppmc': ppmc,
-                    'mae_low': mae_low, 'var_low': var_low, 'ppmc_low': ppmc_low,
-                    'mae_high': mae_high, 'var_high': var_high, 'ppmc_high': ppmc_high}
+                    'mae_lower': mae_lower, 'er': var_lower, 'ppmc_lower': ppmc_lower,
+                    'mae_upper': mae_upper, 'var_upper': var_upper, 'ppmc_upper': ppmc_upper}
 
     return dict_return, pool_results
 

@@ -13,7 +13,7 @@ from settings import *
 
 # import data
 f_dir = os.path.join(MORRIS_DATA_DIR, 'test/seed123/')
-f_name = 'mae_high.csv'
+f_name = 'mae_upper.csv'
 df = pd.read_csv('{}{}'.format(f_dir, f_name)).set_index('Unnamed: 0')
 df = df.rename(columns={i: i.split('_')[1] for i in df.columns})
 columns = df.columns

@@ -13,8 +13,8 @@ from settings import *
 # dot plot for type II
 
 f_dir = MORRIS_DATA_DIR + 'test/seed123/'
-rate_names = ['mae', 'var', 'pearson', 'mae_high', 'var_high', 
-            'pearson_high', 'mae_low', 'var_low', 'pearson_low'] 
+rate_names = ['mae', 'var', 'pearson', 'mae_upper', 'var_upper', 
+            'pearson_upper', 'mae_lower', 'var_lower', 'pearson_lower'] 
 df_metric = pd.DataFrame(columns=rate_names)
 metric_cols = df_metric.columns
 for i in range(len(rate_names)):
@@ -23,18 +23,18 @@ for i in range(len(rate_names)):
 
 # obtain relative bias    
 cols = df_metric.columns
-col_up = [col for col in cols if 'up' in col]
-col_low = [col for col in cols if 'low' in col]
-for ii in range(len(col_up)):
-    df_metric[col_up[ii]] = df_metric[col_up[ii]] - df_metric[cols[ii]]
-    df_metric[col_low[ii]] = df_metric[cols[ii]] - df_metric[col_low[ii]]
+col_upper = [col for col in cols if 'up' in col]
+col_lower = [col for col in cols if 'low' in col]
+for ii in range(len(col_upper)):
+    df_metric[col_upper[ii]] = df_metric[col_upper[ii]] - df_metric[cols[ii]]
+    df_metric[col_lower[ii]] = df_metric[cols[ii]] - df_metric[col_lower[ii]]
 
 df_metric.fillna(value=0.0, inplace=True)
 df_metric['pearson'] = df_metric['pearson'].apply(lambda x: 1 - x)
 df_metric['var'] = df_metric['var'].apply(lambda x: np.abs(1 - x))
 df_metric = df_metric.drop_duplicates('mae', keep='first')
 df_metric = df_metric.iloc[::-1]
-yerror = [[df_metric[col_low[ii]].values, df_metric[col_up[ii]].values] for ii in range(len(col_up))]
+yerror = [[df_metric[col_lower[ii]].values, df_metric[col_upper[ii]].values] for ii in range(len(col_upper))]
 
 # import the analytic variance 
 fvariance = np.loadtxt(SOBOL_DATA_DIR + 'cumulative_variance_ratio.txt', usecols=[0])

@@ -36,7 +36,7 @@ if not file_exists:
     # Loop of Morris
     partial_order = {}
     mu_st, sigma_dt = {}, {}
-    rank_low_dt, rank_up_dt = {}, {}
+    rank_lower_dt, rank_upper_dt = {}, {}
     n_start, n_end, n_step = 20, 120, 10
     x_large_size = sample_morris.sample(problem, n_end, num_levels=4)
     for i in range(n_start, n_end, n_step):
@@ -51,18 +51,18 @@ if not file_exists:
         mu_star_rank_dict = sa_dict['mu_star'].argsort().argsort()
 
         # use toposort to find parameter sa block
-        conf_low = sa_dict['mu_star_rank_conf'][0]
-        conf_up = sa_dict['mu_star_rank_conf'][1]
+        conf_lower = sa_dict['mu_star_rank_conf'][0]
+        conf_upper = sa_dict['mu_star_rank_conf'][1]
 
-        abs_sort = partial_rank(len_params, conf_low, conf_up)
+        abs_sort = partial_rank(len_params, conf_lower, conf_upper)
         rank_list = list(toposort(abs_sort))
         key = 'result_'+str(i)     
         partial_order[key] = {j: list(rank_list[j]) for j in range(len(rank_list))}
 
         #save results returned from Morris if needed
         mu_st[key] = sa_dict['mu_star']
-        rank_low_dt[key] = conf_low
-        rank_up_dt[key] =  conf_up
+        rank_lower_dt[key] = conf_lower
+        rank_upper_dt[key] =  conf_upper
         sigma_dt[key] = sa_dict['sigma']
 
         error_dict[key], pool_res = group_fix(partial_order[key], evaluate, 
