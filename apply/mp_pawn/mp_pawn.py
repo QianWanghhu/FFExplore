@@ -26,10 +26,42 @@ from saffix.utils.format_convert import to_df
 #%% Step 2: define the problem and fuctions for analysis
 
 # import settings for Sobol G-function and returns necessary elements
-from saffix.sobol_g.Sobol_G_setting import  set_sobol_g_func
+from saffix.sobol_g.Sobol_G_setting import set_sobol_g_func
 
 
 def mp_pawn(s_start, s_end, step, tuning_list, f_dir, Nboot=1000):
+    """Run multiple experiments with PAWN.
+
+    Applies PAWN for each tuning value.
+
+    Parameters
+    ----------
+    s_start : int, 
+        Start of segment
+
+    s_end : int,
+        End of segment (exclusive)
+
+    step : int,
+        Step size
+
+    tuning_list : List[int],
+        List of tuning values to loop over
+
+    f_dir : str,
+        Path to output directory to write results to
+
+    Nboot : int,
+        Number of bootstraps used to derive confidence bounds
+
+    Returns
+    -------
+    None
+
+    Outputs
+    -------
+    JSON file of results in specified output directory (`f_dir`).
+    """
 
     a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
 
