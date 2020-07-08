@@ -1,4 +1,4 @@
-#import packages
+"""Create figure 7 for paper."""
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,15 +7,20 @@ import os
 
 import matplotlib.ticker as ticker
 
+# Import global path and file variables
+from settings import *
+
 # read result of the same metric
 # select the result on the two rows which represent the identified fixing group
-path = '../../../Research/G_func_ff/output/morris/revision/test/'
+
+path = MORRIS_DATA_DIR + 'test/'
 f_default = np.append([0, 0.1, 0.4, 0.5], np.linspace(0.2, 0.3, 11))
 f_default.sort()
 f_default = [str(round(i, 2)) for i in f_default]
 f_default[0] = '0.0'
-names = ['mae', 'var', 'pearson', 'mae_up', 'var_up', 
-        'pearson_up', 'mae_low', 'var_low', 'pearson_low'] 
+names = ['mae', 'var', 'pearson', 'mae_upper', 'var_upper', 
+        'pearson_upper', 'mae_lower', 'var_lower', 'pearson_lower']
+
 df = {}
 for fn in names:
     df[fn] = pd.DataFrame(columns=['group1', 'group2'], index=f_default)
@@ -30,16 +35,16 @@ df.index = [float(i) for i in df.index]
 df=df.astype('float')
 
 def plot_shadow(col_name, ax, ylim=None):
-
     df[col_name].plot(kind='line', marker='o', linewidth=1, style='--', ms=3, ax=ax)
-    ax.fill_between(df.index, df[f'{col_name}_low', 'group1'], df[f'{col_name}_up', 'group1'], color='lightsteelblue')
-    ax.fill_between(df.index, df[f'{col_name}_low', 'group2'], df[f'{col_name}_up', 'group2'], color='moccasin')
+    ax.fill_between(df.index, df[f'{col_name}_lower', 'group1'], df[f'{col_name}_upper', 'group1'], color='lightsteelblue')
+    ax.fill_between(df.index, df[f'{col_name}_lower', 'group2'], df[f'{col_name}_upper', 'group2'], color='moccasin')
     ax.set_xlim(-0.01, 0.51)
     if not (ylim==None):
         ax.set_ylim(ylim[0], ylim[1])
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.legend(['fix Group1', 'fix Group1 and Group2'], fontsize=16)
 # End plot_shadow()
+
 sns.set_style('whitegrid')
 fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(24, 7))
 plot_shadow('mae', axes[0])
