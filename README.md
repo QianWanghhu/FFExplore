@@ -18,13 +18,14 @@ Companion code for the paper submitted to Reliability Engineering and System Saf
 
    2.1. Modified version of SALib package.
 
-   Modifications include changes to return confidence intervals for parameter groupings.
+   Modifications include changes to return confidence intervals for parameter rankings.
 
-    (TODO: Installation instructions)
+    The branch named as product_dist with corresponding modifications can be downloaded or forked following the link below:
+    https://github.com/QianWanghhu/SALib/tree/product_dist 
    
    2.2 PAWN Package
 
-   PAWN analyses were conducted with the package available for download after registration.
+   PAWN analyses were conducted with the package available for download after registration. And a python version was used for the paper work.
 
    https://www.safetoolbox.info/register-for-download/
 
@@ -40,4 +41,4 @@ Companion code for the paper submitted to Reliability Engineering and System Saf
 
 6. To recreate plots, run `apply/create_figures.py`
 
-   Note that an Excel file will be created in the case of Figure 4.
+   Note that an Excel file will be created in the case of Figure 4 and further polishing work may be needed to achieve the Figure 4 as the one in the paper.
