@@ -66,7 +66,7 @@ if not file_exists:
         sigma_dt[key] = sa_dict['sigma']
 
         error_dict[key], pool_res = group_fix(partial_order[key], evaluate, 
-                        x_all, y_true, x_default, rand, pool_res, a, file_exist)
+                        x_all, y_true, x_default, rand, pool_res, a, file_exists)
 
     with open(cache_file, 'w') as fp:
         json.dump(partial_order, fp, indent=2)
@@ -76,5 +76,5 @@ else:
 
     for key, value in partial_order.items():
         error_dict[key], pool_res = group_fix(value, evaluate, x_all, y_true, 
-                                        x_default, rand, pool_res, a, file_exist)                                       
+                                        x_default, rand, pool_res, a, file_exists)                                       
 # End
