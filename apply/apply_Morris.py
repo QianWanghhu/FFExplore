@@ -80,13 +80,12 @@ else:
     for key, value in partial_order.items():
         error_dict[key], pool_res = group_fix(value, evaluate, x_all, y_true, 
                                               x_default, rand, pool_res, a, file_exists)
-# End If-Else
+# End
 
 # convert the result into dataframe
 key_outer = list(error_dict.keys())
 f_names = list(error_dict[key_outer[0]].keys())
 for ele in f_names:
-    dict_measure = {key：error_dict[key][ele] 
-                    for key in key_outer}
+    dict_measure = {key: error_dict[key][ele] for key in key_outer}
     df = to_df(partial_order, dict_measure)
     df.to_csv(f'{MORRIS_DATA_DIR}code_clean/{ele}.csv')
