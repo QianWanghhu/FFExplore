@@ -11,10 +11,7 @@ import os
 from SALib.sample import saltelli as sample_saltelli
 from SALib.analyze import sobol as analyze_sobol
 from SALib.sample import latin as sample_latin
-from SALib.test_functions.Sobol_G import evaluate, \
-    total_sensitivity_index as total_sa, sensitivity_index as main_sa,\
-    partial_first_order_variance as pfoa, \
-    total_variance
+from SALib.test_functions.Sobol_G import evaluate
 
 # import settings for Sobol G-function and returns necessary elements
 from utils.Sobol_G_setting import set_sobol_g_func
