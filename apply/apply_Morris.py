@@ -68,7 +68,8 @@ if not file_exists:
         sigma_dt[key] = sa_dict['sigma']
 
         error_dict[key], pool_res = group_fix(partial_order[key], evaluate, 
-                        x_all, y_true, x_default, rand, pool_res, a, file_exists)
+                                              x_all, y_true, x_default, rand, 
+                                              pool_res, a, file_exists)
 
     with open(cache_file, 'w') as fp:
         json.dump(partial_order, fp, indent=2)
@@ -78,15 +79,14 @@ else:
 
     for key, value in partial_order.items():
         error_dict[key], pool_res = group_fix(value, evaluate, x_all, y_true, 
-                                        x_default, rand, pool_res, a, file_exists)                                       
+                                              x_default, rand, pool_res, a, file_exists)
 # End If-Else
 
 # convert the result into dataframe
 key_outer = list(error_dict.keys())
 f_names = list(error_dict[key_outer[0]].keys())
 for ele in f_names:
-    dict_measure = {}
-    for key in key_outer:
-        dict_measure[key] = error_dict[key][ele]
+    dict_measure = {key：error_dict[key][ele] 
+                    for key in key_outer}
     df = to_df(partial_order, dict_measure)
     df.to_csv(f'{MORRIS_DATA_DIR}code_clean/{ele}.csv')
