@@ -27,6 +27,8 @@ x_all = sample_latin.sample(problem, 1000, seed=101)
 y_true = evaluate(x_all, a)
 y_true_ave = np.average(y_true)
 rand = np.random.randint(0, y_true.shape[0], size=(1000, y_true.shape[0]))
+# defaults_list = np.append([0, 0.1, 0.2, 0.4, 0.5], np.round(np.linspace(0.21, 0.3, 10), 2))
+# defaults_list.sort()
 x_default = 0.25
 error_dict = {}
 pool_res = {}
@@ -76,5 +78,15 @@ else:
 
     for key, value in partial_order.items():
         error_dict[key], pool_res = group_fix(value, evaluate, x_all, y_true, 
-                                        x_default, rand, pool_res, a, file_exists)                                       
-# End
+                                        x_default, rand, pool_res, a, file_exist)                                       
+# End If-Else
+
+# convert the result into dataframe
+key_outer = list(error_dict.keys())
+f_names = list(error_dict[key_outer[0]].keys())
+for ele in f_names:
+    dict_measure = {}
+    for key in key_outer:
+        dict_measure[key] = error_dict[key][ele]
+    df = to_df(partial_order, dict_measure)
+    df.to_csv(f'{f_dir}code_clean/{ele}.csv')
