@@ -25,7 +25,7 @@ a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
 cache_file = '{}{}'.format(SOBOL_DATA_DIR, 'sobol_test.json')
 
 # calculate results with fixed parameters
-x_all = sample_latin.sample(problem, 1000, seed=101)
+x_all = sample_latin.sample(problem, 10000, seed=101)
 y_true = evaluate(x_all, a)
 y_true_ave = np.average(y_true)
 x_default = 0.25
@@ -33,6 +33,7 @@ rand = np.random.randint(0, y_true.shape[0], size=(1000, y_true.shape[0]))
 error_dict = {}
 pool_res = {}
 
+os.mkdir(f'{SOBOL_DATA_DIR}{x_default}')
 file_exist = os.path.exists(cache_file)
 if not file_exist:
     partial_order = {}
@@ -79,3 +80,11 @@ else:
     for key, value in partial_order.items():
         error_dict[key], pool_res = group_fix(value, evaluate, x_all, y_true, 
                                         x_default, rand, pool_res, a, file_exist)
+
+# convert the result into dataframe
+key_outer = list(error_dict.keys())
+f_names = list(error_dict[key_outer[0]].keys())
+for ele in f_names:
+    dict_measure = {key: error_dict[key][ele] for key in key_outer}
+    df = to_df(partial_order, dict_measure)
+    df.to_csv(f'{SOBOL_DATA_DIR}{x_default}/{ele}.csv')
