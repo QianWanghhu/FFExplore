@@ -2,3 +2,5 @@
 apply/__pycache__/
 
 apply/utils/__pycache__/
+
+*.pyc
