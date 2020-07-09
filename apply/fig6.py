@@ -11,8 +11,8 @@ import seaborn as sns
 from settings import *
 
 # plot for figure type I
-f_dir = [MORRIS_DATA_DIR+'test/seed123/',
-         SOBOL_DATA_DIR]
+f_dir = [MORRIS_DATA_DIR+'0.25/',
+         SOBOL_DATA_DIR+'0.25/']
 f_names = ['mae', 'mae_lower','mae_upper']
 def f_read(filename):
     df = pd.read_csv(filename)
@@ -57,4 +57,4 @@ leg = ax.legend(['Morris (1980)', 'Sobol (18400)',
                  '95% CIs for Sobol'], 
                 fontsize = 6)
 leg.set_title('GSA method (sample size)', prop={'size':8})            
-plt.savefig(f'{f_dir[0]}fig6.jpg', dpi=300, format='jpg')
+# plt.savefig(f'{f_dir[0]}fig6.jpg', dpi=300, format='jpg')

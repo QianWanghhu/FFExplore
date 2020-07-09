@@ -12,7 +12,7 @@ from utils.plots import bg_color, show_cells
 from settings import *
 
 # import data
-f_dir = os.path.join(MORRIS_DATA_DIR, 'test/seed123/')
+f_dir = os.path.join(MORRIS_DATA_DIR, '0.25/')
 f_name = 'mae_upper.csv'
 df = pd.read_csv('{}{}'.format(f_dir, f_name)).set_index('Unnamed: 0')
 df = df.rename(columns={i: i.split('_')[1] for i in df.columns})
@@ -78,6 +78,6 @@ styled_table = (df.style.format("{:.1%}").
         subset=pd.IndexSlice[:, columns[7:]]).
     apply(show_cells)
 )
-
+styled_table
 # export styler into excel
-styled_table.to_excel('{}{}'.format(f_dir, 'table_mae.xlsx'), engine='openpyxl')
+# styled_table.to_excel('{}{}'.format(f_dir, 'table_mae.xlsx'), engine='openpyxl')

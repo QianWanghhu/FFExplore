@@ -13,13 +13,13 @@ from settings import *
 # read result of the same metric
 # select the result on the two rows which represent the identified fixing group
 
-path = MORRIS_DATA_DIR + 'test/'
+path = MORRIS_DATA_DIR
 f_default = np.append([0, 0.1, 0.4, 0.5], np.linspace(0.2, 0.3, 11))
 f_default.sort()
 f_default = [str(round(i, 2)) for i in f_default]
 f_default[0] = '0.0'
-names = ['mae', 'var', 'pearson', 'mae_upper', 'var_upper', 
-        'pearson_upper', 'mae_lower', 'var_lower', 'pearson_lower']
+names = ['mae', 'var', 'ppmc', 'mae_upper', 'var_upper', 
+        'ppmc_upper', 'mae_lower', 'var_lower', 'ppmc_lower']
 
 df = {}
 for fn in names:
@@ -51,6 +51,6 @@ plot_shadow('mae', axes[0])
 plot_shadow('var', axes[1])
 fig.suptitle('Morris (n=90)', fontsize=20)
 axes[1].set_xlabel('Default value',  fontsize=18)
-plot_shadow('pearson', axes[2], [0.990, 1.010])
+plot_shadow('ppmc', axes[2], [0.990, 1.010])
 
-plt.savefig(f'{path}fig7.jpg', format='jpg', dpi=300)
+# plt.savefig(f'{path}fig7.jpg', format='jpg', dpi=300)

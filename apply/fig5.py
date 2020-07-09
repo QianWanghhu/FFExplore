@@ -12,9 +12,9 @@ from settings import *
 
 # dot plot for type II
 
-f_dir = MORRIS_DATA_DIR + 'test/seed123/'
-rate_names = ['mae', 'var', 'pearson', 'mae_upper', 'var_upper', 
-            'pearson_upper', 'mae_lower', 'var_lower', 'pearson_lower'] 
+f_dir = MORRIS_DATA_DIR + '0.25/'
+rate_names = ['mae', 'var', 'ppmc', 'mae_upper', 'var_upper', 
+            'ppmc_upper', 'mae_lower', 'var_lower', 'ppmc_lower'] 
 df_metric = pd.DataFrame(columns=rate_names)
 metric_cols = df_metric.columns
 for i in range(len(rate_names)):
@@ -30,7 +30,7 @@ for ii in range(len(col_upper)):
     df_metric[col_lower[ii]] = df_metric[cols[ii]] - df_metric[col_lower[ii]]
 
 df_metric.fillna(value=0.0, inplace=True)
-df_metric['pearson'] = df_metric['pearson'].apply(lambda x: 1 - x)
+df_metric['ppmc'] = df_metric['ppmc'].apply(lambda x: 1 - x)
 df_metric['var'] = df_metric['var'].apply(lambda x: np.abs(1 - x))
 df_metric = df_metric.drop_duplicates('mae', keep='first')
 df_metric = df_metric.iloc[::-1]
@@ -83,4 +83,4 @@ ax.set_xlim(0.85, 7.15)
 ax.set_xticklabels(x_ticklabels)
 ax.legend(['RMAE', '(1-RV)', '(1-PPMC)', 'Expected decrease in variance'], loc='upper left', fontsize=10)
 ax.text(1, 0.08, '6% (Threshold)', fontsize=12, color='dimgrey')
-plt.savefig('{}{}{}'.format(f_dir, 'fig5_first_order', '.jpg'), dpi=300, format='jpg')
+# plt.savefig('{}{}{}'.format(f_dir, 'fig5_first_order', '.jpg'), dpi=300, format='jpg')
