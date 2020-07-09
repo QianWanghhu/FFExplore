@@ -84,9 +84,10 @@ def group_fix(partial_result, func, x, y_true, x_default,
     num_group = len(partial_result) - 1
 
     # store results from fixing parameters in dict
-    mae, var, ppmc = {}, {}, {}
-    mae_upper, var_upper, ppmc_upper = {}, {}, {}
-    mae_lower, var_lower, ppmc_lower = {}, {}, {}
+    mae = {i: None for i in range(num_group)}
+    var, ppmc = dict(mae), dict(mae)
+    mae_upper, var_upper, ppmc_upper = dict(mae), dict(mae), dict(mae)
+    mae_lower, var_lower, ppmc_lower = dict(mae), dict(mae), dict(mae)
     ind_fix = []
     
     for i in range(num_group, -1, -1):
@@ -145,7 +146,7 @@ def group_fix(partial_result, func, x, y_true, x_default,
     # End for()
 
     dict_return = {'mae': mae, 'var': var, 'ppmc': ppmc,
-                    'mae_lower': mae_lower, 'er': var_lower, 'ppmc_lower': ppmc_lower,
+                    'mae_lower': mae_lower, 'var_lower': var_lower, 'ppmc_lower': ppmc_lower,
                     'mae_upper': mae_upper, 'var_upper': var_upper, 'ppmc_upper': ppmc_upper}
 
     return dict_return, pool_results
