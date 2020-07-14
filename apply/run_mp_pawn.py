@@ -52,8 +52,8 @@ if __name__ == '__main__':
     f_dir = args.fdir
 
     if not f_dir:
-        f_dir = '../../output/test/sobol_g/pawn/mp_pawn/'
-
+        from settings import PAWN_DATA_DIR
+        f_dir = PAWN_DATA_DIR
     if not args.manager:
         mp_pawn(s_start, s_end, step, tuning, f_dir)
         sys.exit()

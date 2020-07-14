@@ -13,23 +13,24 @@ from SAFEpython.sampling import AAT_sampling # module to perform the input sampl
 from SAFEpython.util import aggregate_boot, KS_ranking  # function to aggregate the bootstrap results
 
 # import other module needed
-from saffix.sobol_g.Sobol_G import g_func
+from SALib.test_functions.Sobol_G import evaluate
 from toposort import toposort, toposort_flatten
 import json
 import os
 
 import SALib
 from SALib.sample import latin as sample_latin
-from saffix.utils.group_fix import group_fix
-from saffix.utils.format_convert import to_df
 
 #%% Step 2: define the problem and fuctions for analysis
 
 # import settings for Sobol G-function and returns necessary elements
-from saffix.sobol_g.Sobol_G_setting import set_sobol_g_func
+# import settings for Sobol G-function and returns necessary elements
+from utils.Sobol_G_setting import set_sobol_g_func
+from utils.group_fix import group_fix
+from utils.partial_sort import to_df, partial_rank
 
 
-def mp_pawn(s_start, s_end, step, tuning_list, f_dir, Nboot=1000):
+def mp_pawn(s_start, s_end, step, tuning_list, f_dir, Nboot=10):
     """Run multiple experiments with PAWN.
 
     Applies PAWN for each tuning value.
@@ -63,7 +64,7 @@ def mp_pawn(s_start, s_end, step, tuning_list, f_dir, Nboot=1000):
     JSON file of results in specified output directory (`f_dir`).
     """
 
-    a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
+    a, x, x_bounds, x_names, len_params, _ = set_sobol_g_func()
 
     distr_fun = [st.uniform] * len_params
     distr_par = [[x_bounds[i][0], x_bounds[i][1] - x_bounds[i][0]] 
@@ -81,7 +82,7 @@ def mp_pawn(s_start, s_end, step, tuning_list, f_dir, Nboot=1000):
             X = AAT_sampling(samp_strat, len_params, distr_fun, distr_par, N)
 
             # Run the model:
-            Y = g_func(X, a)
+            Y = evaluate(X, a)
 
             # Set the number of conditioning intervals:
             # option 1 (same value for all inputs):
@@ -124,24 +125,13 @@ def mp_pawn(s_start, s_end, step, tuning_list, f_dir, Nboot=1000):
     
             # return the ranking of parameters
             rank_m, rank_conf = KS_ranking(KS_median, alfa=0.05) 
-            conf_low = rank_conf[0]
-            conf_up = rank_conf[1]
+            conf_lower = rank_conf[0]
+            conf_upper = rank_conf[1]
 
-            abs_sort = {}
-            for m in range(len_params):
-                list_temp = np.where(conf_low >= conf_up[m])
-                
-                set_temp = set()
-                if len(list_temp) > 0:
-                    for ele in list_temp[0]:
-                        set_temp.add(ele)
+            abs_sort = partial_rank(len_params, conf_lower, conf_upper)
+            rank_list = list(toposort(abs_sort))
 
-                abs_sort[m] = set_temp
-            # End for
-
-            order_temp = list(toposort(abs_sort))
-
-            partial_order['result_'+str(N)] = {j: list(order_temp[j]) for j in range(len(order_temp))}
+            partial_order['result_'+str(N)] = {j: list(rank_list[j]) for j in range(len(rank_list))}
             pawn_mean['result_'+str(N)] = KS_mean_m
         # End for
 
