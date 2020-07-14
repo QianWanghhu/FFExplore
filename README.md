@@ -12,8 +12,6 @@ Companion code for the paper submitted to Reliability Engineering and System Saf
     (Note that the environment spec is for Windows only. 
         Adjustments will be necessary for *nix platforms.)
 
-    TODO: Create environment spec.
-
 2. Clone and install other packages:
 
    2.1. Modified version of SALib package.
@@ -29,9 +27,9 @@ Companion code for the paper submitted to Reliability Engineering and System Saf
 
    https://www.safetoolbox.info/register-for-download/
 
-4. Adjust output directory settings in `apply/settings.py`
+3. Adjust output directory settings in `apply/settings.py`
 
-5. Perform experiments:
+4. Perform experiments:
 
    4.1. Run PAWN from the `apply/mp_pawn` directory, for example:
 
@@ -39,6 +37,6 @@ Companion code for the paper submitted to Reliability Engineering and System Saf
 
    4.2. Run `apply/apply_morris.py` and `apply/apply_Sobol.py`
 
-6. To recreate plots, run `apply/create_figures.py`
+5. To recreate plots, run `apply/create_figures.py`
 
    Note that an Excel file will be created in the case of Figure 4 and further polishing work may be needed to achieve the Figure 4 as the one in the paper.
