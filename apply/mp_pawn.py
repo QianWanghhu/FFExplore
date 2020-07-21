@@ -10,7 +10,7 @@ from SAFEpython import PAWN
 import SAFEpython.plot_functions as pf # module to visualize the results
 from SAFEpython.model_execution import model_execution # module to execute the model
 from SAFEpython.sampling import AAT_sampling # module to perform the input sampling
-from SAFEpython.util import aggregate_boot, KS_ranking  # function to aggregate the bootstrap results
+from SAFEpython.util import aggregate_boot  # function to aggregate the bootstrap results
 
 # import other module needed
 from SALib.test_functions.Sobol_G import evaluate
@@ -28,6 +28,8 @@ from SALib.sample import latin as sample_latin
 from utils.Sobol_G_setting import set_sobol_g_func
 from utils.group_fix import group_fix
 from utils.partial_sort import to_df, partial_rank
+
+from utils.KS_ranking import KS_ranking
 
 
 def mp_pawn(s_start, s_end, step, tuning_list, f_dir, Nboot=10):
