@@ -57,6 +57,7 @@ if not file_exist:
         y_sobol = evaluate(x_sobol, a)
         sa_sobol = analyze_sobol.analyze(problem, 
                     y_sobol, calc_second_order=False, num_resamples=1000, conf_level=0.95)
+        sa_sobol = sa_sobol[0]
 
         # use toposort find parameter sa block
         conf_lower = sa_sobol['total_rank_ci'][0]
