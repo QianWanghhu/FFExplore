@@ -35,9 +35,6 @@ parser.add_argument('--tuning', type=int, nargs='+',
 parser.add_argument('--ncores', type=int,
                     default=1,
                     help='Number of cores to use')
-parser.add_argument('--fdir', type=str,
-                    default=None,
-                    help='Output directory')
 parser.add_argument('--manager', type=bool, default=False, 
                     help='Is this the initial process or not? (default False)')
 
@@ -49,11 +46,10 @@ if __name__ == '__main__':
     step = args.step
     tuning = args.tuning
     ncores = args.ncores
-    f_dir = args.fdir
 
-    if not f_dir:
-        from settings import PAWN_DATA_DIR
-        f_dir = PAWN_DATA_DIR
+    from settings import PAWN_DATA_DIR
+    f_dir = PAWN_DATA_DIR
+
     if not args.manager:
         mp_pawn(s_start, s_end, step, tuning, f_dir)
         sys.exit()
