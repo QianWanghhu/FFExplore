@@ -1,3 +1,5 @@
+import numpy as np
+
 def KS_ranking(S, alfa=0.05):
     if isinstance(S, np.ndarray):
         if S.dtype.kind != 'f' and S.dtype.kind != 'i' and S.dtype.kind != 'u':
