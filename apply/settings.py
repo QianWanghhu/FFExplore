@@ -1,3 +1,3 @@
-MORRIS_DATA_DIR = '../../../Research/G_func_ff/output/morris/revision/'
-SOBOL_DATA_DIR = '../../../Research/G_func_ff/output/sobol/revision/'
-PAWN_DATA_DIR = '../../../Research/G_func_ff/output/pawn/'
+MORRIS_DATA_DIR = 'output/morris/'
+SOBOL_DATA_DIR = 'output/sobol/'
+PAWN_DATA_DIR = 'output/pawn/'
