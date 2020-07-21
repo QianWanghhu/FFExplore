@@ -1,3 +1,12 @@
+"""Launches multiple PAWN experiments.
+
+`mp_pawn` is launched naively by spinning up multiple experiements 
+as separate processes via `subprocess`.
+
+Quick and dirty approach to spreading the workload across available 
+processors. 
+"""
+
 import argparse
 import pathlib
 from datetime import datetime
@@ -10,7 +19,7 @@ from mp_pawn import mp_pawn
 
 
 example_text = '''usage example:
-python run_mp_pawn.py --sample_range 1600 2000 --step 100 --tuning 2 4 --ncores 4
+python run_mp_pawn.py --sample_range 1600 2000 --step 100 --tuning 2 4 --ncores 4 --fdir [output directory]
 '''
 
 parser = argparse.ArgumentParser(description='pawn multiple PAWN processes',
@@ -43,10 +52,8 @@ if __name__ == '__main__':
     f_dir = args.fdir
 
     if not f_dir:
-        f_dir = '../../output/test/sobol_g/pawn/mp_pawn/'
-
-
-
+        from settings import PAWN_DATA_DIR
+        f_dir = PAWN_DATA_DIR
     if not args.manager:
         mp_pawn(s_start, s_end, step, tuning, f_dir)
         sys.exit()
