@@ -33,7 +33,10 @@ rand = np.random.randint(0, y_true.shape[0], size=(1000, y_true.shape[0]))
 error_dict = {}
 pool_res = {}
 
-os.mkdir(f'{SOBOL_DATA_DIR}{x_default}')
+out_path = f'{SOBOL_DATA_DIR}{x_default}'
+if not os.path.exists(out_path):
+    os.makedirs(out_path)
+
 file_exist = os.path.exists(cache_file)
 if not file_exist:
     partial_order = {}

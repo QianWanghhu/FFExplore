@@ -33,7 +33,10 @@ defaults_list.sort()
 for x_default in defaults_list:
     error_dict = {}
     pool_res = {}
-    os.mkdir(f'{MORRIS_DATA_DIR}{x_default}')
+    out_path = f'{MORRIS_DATA_DIR}{x_default}'
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
+
     file_exists = os.path.exists(cache_file)
     if not file_exists:
         # Loop of Morris
