@@ -19,9 +19,11 @@ dependencies:
   - ipython_genutils=0.2.0
   - jdcal=1.4.1
   - jedi=0.17.1
+  - jinja2=2.11.2
   - jpeg=9b
   - kiwisolver=1.2.0
   - libpng=1.6.37
+  - markupsafe=1.1.1
   - matplotlib=3.2.2
   - matplotlib-base=3.2.2
   - mkl=2020.1
@@ -63,5 +65,7 @@ dependencies:
   - wincertstore=0.2
   - zlib=1.2.11
   - pip:
+    - llvmlite==0.33.0
+    - numba==0.50.1
     - toposort==1.5
 prefix: F:\Anaconda3\envs\ffexplore
