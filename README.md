@@ -54,7 +54,7 @@ Companion code for the paper submitted to Reliability Engineering and System Saf
 
    Don't forget to create the specified folders.
 
-1. Perform experiments:
+4. Perform experiments:
 
    All instructions here assume the code is being run from the project root directory.
 
@@ -70,6 +70,6 @@ Companion code for the paper submitted to Reliability Engineering and System Saf
 
    4.2. Run `apply/apply_Morris.py` and `apply/apply_Sobol.py`
 
-2. To recreate plots, run `apply/create_figures.py`
+5. To recreate plots, run `apply/create_figures.py`
 
    Note that an Excel file will be created in the case of Figure 4 and further polishing work may be needed to achieve the Figure 4 as the one in the paper.
