@@ -44,3 +44,22 @@ Companion code for the paper submitted to Reliability Engineering and System Saf
 5. To recreate plots, run `apply/create_figures.py`
 
    Note that an Excel file will be created in the case of Figure 4 and further polishing work may be needed to achieve the Figure 4 as the one in the paper.
+
+
+The full process as detailed above are shown below:
+
+```bash
+$ conda env create -f ffexplore.yml
+
+$ git clone --single-branch --branch product_dist https://github.com/QianWanghhu/SALib salib-prod
+
+$ cd salib-prod
+$ pip install .
+$ cd ..
+
+# Edit apply/settings.py if needed
+
+$ python apply/apply_Morris.py
+$ python apply/apply_Sobol.py
+$ python apply/create_figures.py
+```
