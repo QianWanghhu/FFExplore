@@ -53,7 +53,7 @@ for x_default in defaults_list:
             else:
                 y_eval = evaluate(x_morris[-(len_params + 1) * n_step:], a)
                 y_morris =  np.append(y_morris, y_eval)
-            sa_dict= analyze_morris.analyze(problem, x_morris, y_morris, num_resamples=1000, conf_level=0.95, seed=123)
+            sa_dict = analyze_morris.analyze(problem, x_morris, y_morris, num_resamples=1000, conf_level=0.95, seed=123)
             mu_star_rank_dict = sa_dict['mu_star'].argsort().argsort()
 
             # use toposort to find parameter sa block
@@ -68,7 +68,7 @@ for x_default in defaults_list:
             #save results returned from Morris if needed
             mu_st[key] = sa_dict['mu_star']
             rank_lower_dt[key] = conf_lower
-            rank_upper_dt[key] =  conf_upper
+            rank_upper_dt[key] = conf_upper
             sigma_dt[key] = sa_dict['sigma']
 
             error_dict[key], pool_res = group_fix(partial_order[key], evaluate, 

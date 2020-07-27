@@ -38,7 +38,7 @@ df_metric = df_metric.iloc[::-1]
 yerror = [[df_metric[col_lower[ii]].values, df_metric[col_upper[ii]].values] for ii in range(len(col_upper))]
 
 # import the analytic variance 
-fvariance = np.loadtxt('variance_frac.txt')
+fvariance = np.loadtxt('apply/variance_frac.txt')
 # total_variance = 2.755
 index_fix = np.array([[20, 16, 19], [15, 17, 18], [14], [12, 13], 
                     [11], [10, 9], [8, 7, 6, 5, 4], [2], [3, 0, 1]])
