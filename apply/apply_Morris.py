@@ -23,11 +23,12 @@ a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
 cache_file = '{}{}'.format(MORRIS_DATA_DIR, 'morris_seed123.json')
 
 # calculate results with fixed parameters
-x_all = sample_latin.sample(problem, 10000, seed=101)
+x_all = sample_latin.sample(problem, 10000)#, seed=101
 y_true = evaluate(x_all, a)
 y_true_ave = np.average(y_true)
 rand = np.random.randint(0, y_true.shape[0], size=(1000, y_true.shape[0]))
 defaults_list = np.append([0, 0.1, 0.2, 0.4, 0.5], np.round(np.linspace(0.21, 0.3, 10), 2))
+# defaults_list = [0.25]
 defaults_list.sort()
 
 for x_default in defaults_list:
@@ -43,8 +44,8 @@ for x_default in defaults_list:
         partial_order = {}
         mu_st, sigma_dt = {}, {}
         rank_lower_dt, rank_upper_dt = {}, {}
-        n_start, n_end, n_step = 20, 120, 10
-        x_large_size = sample_morris.sample(problem, n_end, num_levels=4)
+        n_start, n_end, n_step = 20, 130, 10
+        x_large_size = sample_morris.sample(problem, n_end, num_levels=4, seed=1010)
         for i in range(n_start, n_end, n_step):
             # partial ordering
             x_morris= x_large_size[:i * (len_params + 1)]
@@ -84,7 +85,7 @@ for x_default in defaults_list:
         for key, value in partial_order.items():
             error_dict[key], pool_res = group_fix(value, evaluate, x_all, y_true, 
                                                 x_default, rand, pool_res, a, file_exists)
-    # End
+# End
 
     # convert the result into dataframe
     key_outer = list(error_dict.keys())
