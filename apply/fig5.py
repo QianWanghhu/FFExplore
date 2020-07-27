@@ -70,8 +70,9 @@ ax.plot(x, df_metric[rate_names[0]], 's', color=colors[0], ms=5, alpha=0.7, labe
 ax.plot(x, df_metric[rate_names[1]], '^', color=colors[1], ms=5, label='RV')
 ax.plot(x, df_metric[rate_names[2]], 'o', ms=5, markerfacecolor='none',label='PPMC',
         markeredgecolor=colors[2], markeredgewidth=1.5)
+
 ax.plot(x, analytic_var, '*', ms=3, markerfacecolor='none',label='First-order variance',
-        markeredgecolor='red', markeredgewidth=1.5, alpha=0.7)                                                              
+        markeredgecolor='red', markeredgewidth=1.5, alpha=0.7)
 ax.axhline(y=0.06, xmin=0, xmax=6, linestyle='--', linewidth=1.2, color='dimgrey')
 ax.tick_params(axis='both', labelsize=12)
 
