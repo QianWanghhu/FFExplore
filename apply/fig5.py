@@ -5,6 +5,7 @@ import numpy as np
 import json
 import os
 import matplotlib.pyplot as plt
+from pandas.core.common import flatten
 import seaborn as sns
 
 # Import global path and file variables
@@ -37,23 +38,15 @@ df_metric = df_metric.iloc[::-1]
 yerror = [[df_metric[col_lower[ii]].values, df_metric[col_upper[ii]].values] for ii in range(len(col_upper))]
 
 # import the analytic variance 
-fvariance = np.loadtxt(SOBOL_DATA_DIR + 'cumulative_variance_ratio.txt', usecols=[0])
-total_variance = 2.755
+fvariance = np.loadtxt('variance_frac.txt')
+# total_variance = 2.755
 index_fix = np.array([[20, 16, 19], [15, 17, 18], [14], [12, 13], 
                     [11], [10, 9], [8, 7, 6, 5, 4], [2], [3, 0, 1]])
-for i in range(index_fix.shape[0]):
-    if i == 0:
-        analytic_var = np.zeros(index_fix.shape[0])
-        analytic_var[i] = fvariance[index_fix[i]].sum()
-    else:
-        index_fix[0].extend(index_fix[i])
-        analytic_var[i] = fvariance[index_fix[0]].sum()
-
-analytic_var = analytic_var / total_variance
+variance_frac = fvariance[[len(list(flatten(index_fix[0:i+1])))-1 for i in range(index_fix.size-1)]] / 100
+variance_frac = np.append(variance_frac, fvariance[-1])
 
 sns.set_style('whitegrid')
 fig = plt.figure(figsize=(6, 5))
-
 # form x label
 x = df_metric.index
 num_in_groups = []
@@ -61,18 +54,19 @@ x_ticklabels = [''] + ['{}{}{}{}'.format(i+1, ' (', (21 - x[i]), ')') for i in r
 df_metric.index = ([i+1 for i in range(len(x))])
 
 conf_names = [col for col in rate_names if '_conf' in col]
-colors = ['green', 'royalblue','chocolate']
+colors = ['orchid', 'royalblue','chocolate']
 ax = df_metric[rate_names[:3]].plot(kind='line', yerr=yerror, 
                                     linestyle='', color=colors)
 
 x = df_metric.index
-ax.plot(x, df_metric[rate_names[0]], 's', color=colors[0], ms=5, alpha=0.7, label='RMAE')
-ax.plot(x, df_metric[rate_names[1]], '^', color=colors[1], ms=5, label='RV')
+ax.plot(x, df_metric[rate_names[0]], 's', color=colors[0], ms=4, alpha=0.7, label='RMAE')
+ax.plot(x, df_metric[rate_names[1]], '^', color=colors[1], ms=4, label='RV')
 ax.plot(x, df_metric[rate_names[2]], 'o', ms=5, markerfacecolor='none',label='PPMC',
         markeredgecolor=colors[2], markeredgewidth=1.5)
-
-ax.plot(x, analytic_var, '*', ms=3, markerfacecolor='none',label='First-order variance',
-        markeredgecolor='red', markeredgewidth=1.5, alpha=0.7)
+          
+ax.plot(x, variance_frac, 'd', ms=3, markerfacecolor='none',label='First-order variance',
+        markeredgecolor='c', markeredgewidth=1.5, alpha=0.7)            
+                                                                  
 ax.axhline(y=0.06, xmin=0, xmax=6, linestyle='--', linewidth=1.2, color='dimgrey')
 ax.tick_params(axis='both', labelsize=12)
 
@@ -82,6 +76,6 @@ ax.set_ylim(-0.03, 0.5)
 ax.set_xlim(0.85, 7.15)
 
 ax.set_xticklabels(x_ticklabels)
-ax.legend(['RMAE', '(1-RV)', '(1-PPMC)', 'Expected decrease in variance'], loc='upper left', fontsize=10)
-ax.text(1, 0.08, '6% (Threshold)', fontsize=12, color='dimgrey')
-# plt.savefig('{}{}{}'.format(f_dir, 'fig5_first_order', '.jpg'), dpi=300, format='jpg')
+ax.legend(['RMAE', '(1 - RV)', '(1 - r)', '% decrease in variance'], loc='upper left', fontsize=10)
+ax.text(1, 0.08, '6% (Threshold)', fontsize=10, color='dimgrey')
+# plt.savefig('{}{}{}'.format(f_dir, 'fig5_variance_fix', '.jpg'), dpi=300, format='jpg')

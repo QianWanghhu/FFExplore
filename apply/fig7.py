@@ -34,7 +34,7 @@ df = pd.concat(df, axis=1)
 df.index = [float(i) for i in df.index]
 df=df.astype('float')
 
-def plot_shadow(col_name, ax, ylim=None):
+def plot_shadow(col_name, ax, ylabel, ylim=None, fs=None):
     df[col_name].plot(kind='line', marker='o', linewidth=1, style='--', ms=3, ax=ax)
     ax.fill_between(df.index, df[f'{col_name}_lower', 'group1'], df[f'{col_name}_upper', 'group1'], color='lightsteelblue')
     ax.fill_between(df.index, df[f'{col_name}_lower', 'group2'], df[f'{col_name}_upper', 'group2'], color='moccasin')
@@ -42,15 +42,19 @@ def plot_shadow(col_name, ax, ylim=None):
     if not (ylim==None):
         ax.set_ylim(ylim[0], ylim[1])
     ax.tick_params(axis='both', which='major', labelsize=16)
+    if fs == None:
+        ax.set_ylabel(ylabel, fontsize=18)
+    else:
+        ax.set_ylabel(ylabel, fontsize=24)    
     ax.legend(['fix Group1', 'fix Group1 and Group2'], fontsize=16)
 # End plot_shadow()
 
 sns.set_style('whitegrid')
-fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(24, 7))
-plot_shadow('mae', axes[0])
-plot_shadow('var', axes[1])
+fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(25, 7))
+plot_shadow('mae', axes[0], 'RMAE')
+plot_shadow('var', axes[1], 'RV')
 fig.suptitle('Morris (n=90)', fontsize=20)
 axes[1].set_xlabel('Default value',  fontsize=18)
-plot_shadow('ppmc', axes[2], [0.990, 1.010])
+plot_shadow('ppmc', axes[2], 'r', [0.990, 1.010], 26)
 
-# plt.savefig(f'{path}fig7.jpg', format='jpg', dpi=300)
+plt.savefig(f'{path}fig7.jpg', format='jpg', dpi=300)

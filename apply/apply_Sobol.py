@@ -20,7 +20,6 @@ from utils.partial_sort import to_df, partial_rank
 
 from settings import SOBOL_DATA_DIR
 
-
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
 cache_file = '{}{}'.format(SOBOL_DATA_DIR, 'sobol_test.json')
 
