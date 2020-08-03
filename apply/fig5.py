@@ -38,7 +38,7 @@ df_metric = df_metric.iloc[::-1]
 yerror = [[df_metric[col_lower[ii]].values, df_metric[col_upper[ii]].values] for ii in range(len(col_upper))]
 
 # import the analytic variance 
-fvariance = np.loadtxt('variance_frac.txt')
+fvariance = np.loadtxt('data/variance_frac.txt')
 # total_variance = 2.755
 index_fix = np.array([[20], [15, 16, 17, 18, 19], [14, 12, 13], 
                     [11], [8], [10, 9, 7, 6, 5, 4], [2, 3, 0, 1]])
@@ -78,4 +78,4 @@ ax.set_xlim(0.85, 7.15)
 ax.set_xticklabels(x_ticklabels[:-1])
 ax.legend(['RMAE', '(1 - RV)', '(1 - r)', '% decrease in variance'], loc='upper left', fontsize=10)
 ax.text(1, 0.08, '6% (Threshold)', fontsize=10, color='dimgrey')
-# plt.savefig('{}{}{}'.format(f_dir, 'fig5_variance_fix', '.jpg'), dpi=300, format='jpg')
+plt.savefig('{}{}{}'.format(FIGURE_DIR, 'fig5_variance_fix', '.jpg'), dpi=300, format='jpg')
