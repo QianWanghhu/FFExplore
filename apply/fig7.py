@@ -57,4 +57,4 @@ fig.suptitle('Morris (n=90)', fontsize=20)
 axes[1].set_xlabel('Default value',  fontsize=18)
 plot_shadow('ppmc', axes[2], 'r', [0.990, 1.010], 26)
 
-plt.savefig(f'{path}fig7.jpg', format='jpg', dpi=300)
+plt.savefig(f'{FIGURE_DIR}fig7.jpg', format='jpg', dpi=300)
