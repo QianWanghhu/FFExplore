@@ -10,6 +10,7 @@ from utils.plots import bg_color, show_cells
 
 # Import global path and file variables
 from settings import *
+os.makedirs(FIGURE_DIR)
 
 # import data
 f_dir = os.path.join(MORRIS_DATA_DIR, '0.25/')
@@ -78,6 +79,6 @@ styled_table = (df.style.format("{:.1%}").
         subset=pd.IndexSlice[:, columns[7:]]).
     apply(show_cells)
 )
-styled_table
+# styled_table
 # export styler into excel
-# styled_table.to_excel('{}{}'.format(f_dir, 'table_mae.xlsx'), engine='openpyxl')
+styled_table.to_excel('{}{}'.format(FIGURE_DIR, 'table_mae.xlsx'), engine='openpyxl')
