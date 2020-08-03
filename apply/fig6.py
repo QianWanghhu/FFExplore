@@ -49,11 +49,10 @@ ax.axhline(y=0.06, xmin=0, xmax=21, linestyle='--', linewidth=1.2, color='dimgre
 ax.set_xticks(range(len(mae_comp)))
 ax.set_xticklabels(np.arange(1, 22));
 ax.set_xlabel('The number of factors fixed', fontsize=10)
-ax.set_ylabel('RMAE (%)', fontsize=10)
+ax.set_ylabel('Error Measures', fontsize=10)
 leg = ax.legend(['Morris', 'Sobol',
                  'Number of fixed factors identified',
                  ], #'Threshold (6%)','95% CIs for Morris', '95% CIs for Sobol'
                 fontsize = 8)
-ax.text(1, 0.08, '6% (Threshold)', fontsize=10, color='dimgrey')
-# leg.set_title('GSA method', prop={'size':8})            
-plt.savefig(f'{f_dir[0]}fig6.jpg', dpi=300, format='jpg')
+ax.text(1, 0.08, '6% (Threshold)', fontsize=10, color='dimgrey')            
+plt.savefig(f'{FIGURE_DIR}fig6.jpg', dpi=300, format='jpg')
