@@ -44,3 +44,11 @@ def set_sobol_g_func():
 
     return a, x, x_bounds, x_names, len_params, problem
 # End
+
+def add_dummy(bool_add, problem):
+    if bool_add:
+        problem['num_vars'] = problem['num_vars'] + 1
+        len_params = problem['num_vars']
+        problem['names'].append('dummy')
+        problem['bounds'] = np.append(problem['bounds'], [[0, 1]], axis=0)
+        return problem, len_params
