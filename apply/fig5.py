@@ -12,14 +12,11 @@ import seaborn as sns
 from settings import *
 
 # dot plot for type II
-
 f_dir = MORRIS_DATA_DIR + '0.25/'
-rate_names = ['mae', 'var', 'ppmc', 'mae_upper', 'var_upper', 
-            'ppmc_upper', 'mae_lower', 'var_lower', 'ppmc_lower'] 
-df_metric = pd.DataFrame(columns=rate_names)
+df_metric = pd.DataFrame(columns=METRIC_NAME)
 metric_cols = df_metric.columns
-for i in range(len(rate_names)):
-    f_read = pd.read_csv('{}{}{}'.format(f_dir, rate_names[i], '.csv'))
+for i in range(len(METRIC_NAME)):
+    f_read = pd.read_csv('{}{}{}'.format(f_dir, METRIC_NAME[i], '.csv'))
     df_metric[metric_cols[i]] = f_read[f_read.columns[8]]
 
 # obtain relative bias    
@@ -53,15 +50,15 @@ num_in_groups = []
 x_ticklabels = [''] + ['{}{}{}{}'.format(i+1, ' (', (21 - x[i]), ')') for i in range(len(x))]
 df_metric.index = ([i+1 for i in range(len(x))])
 
-conf_names = [col for col in rate_names if '_conf' in col]
+conf_names = [col for col in METRIC_NAME if '_conf' in col]
 colors = ['orchid', 'royalblue','chocolate']
-ax = df_metric[rate_names[:3]].plot(kind='line', yerr=yerror, 
+ax = df_metric[METRIC_NAME[:3]].plot(kind='line', yerr=yerror, 
                                     linestyle='', color=colors)
 
 x = df_metric.index
-ax.plot(x, df_metric[rate_names[0]], 's', color=colors[0], ms=4, alpha=0.7, label='RMAE')
-ax.plot(x, df_metric[rate_names[1]], '^', color=colors[1], ms=4, label='RV')
-ax.plot(x, df_metric[rate_names[2]], 'o', ms=5, markerfacecolor='none',label='PPMC',
+ax.plot(x, df_metric[METRIC_NAME[0]], 's', color=colors[0], ms=4, alpha=0.7, label='RMAE')
+ax.plot(x, df_metric[METRIC_NAME[1]], '^', color=colors[1], ms=4, label='RV')
+ax.plot(x, df_metric[METRIC_NAME[2]], 'o', ms=5, markerfacecolor='none',label='PPMC',
         markeredgecolor=colors[2], markeredgewidth=1.5)
           
 ax.plot(x, variance_frac, 'd', ms=3, markerfacecolor='none',label='First-order variance',

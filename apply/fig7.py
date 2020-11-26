@@ -12,17 +12,14 @@ from settings import *
 
 # read result of the same metric
 # select the result on the two rows which represent the identified fixing group
-
 path = MORRIS_DATA_DIR
 f_default = np.append([0, 0.1, 0.4, 0.5], np.linspace(0.2, 0.3, 11))
 f_default.sort()
 f_default = [str(round(i, 2)) for i in f_default]
 f_default[0] = '0.0'
-names = ['mae', 'var', 'ppmc', 'mae_upper', 'var_upper', 
-        'ppmc_upper', 'mae_lower', 'var_lower', 'ppmc_lower']
 
 df = {}
-for fn in names:
+for fn in METRIC_NAME:
     df[fn] = pd.DataFrame(columns=['group1', 'group2'], index=f_default)
     for val in f_default:
         f_read = pd.read_csv('{}{}{}{}{}'.format(path, val, '/', fn, '.csv'))
