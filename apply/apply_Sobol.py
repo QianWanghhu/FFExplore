@@ -21,7 +21,8 @@ from utils.partial_sort import to_df, partial_rank
 from settings import SOBOL_DATA_DIR
 
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-cache_file = '{}{}'.format(SOBOL_DATA_DIR, 'sobol_test3.json')
+seed = 123
+cache_file = f'{SOBOL_DATA_DIR}sobol_{seed}.json'
 
 # calculate results with fixed parameters
 x_all = sample_latin.sample(problem, 10000, seed=101)
@@ -36,10 +37,12 @@ if not os.path.exists(out_path):
     os.makedirs(out_path)
 
 file_exist = os.path.exists(cache_file)
-dummy = True
+dummy = True; error_cal = False
+
 if not file_exist:
-    partial_order, sa_total, sa_main, sa_total_conf, sa_main_conf = {}, {}, {}, {}, {}
-    n_start, n_end, n_step = 200, 2200, 200
+    partial_order, sa_total, sa_total_conf, sa_main, sa_main_conf = {}, pd.DataFrame(), \
+                pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+    n_start, n_end, n_step = 200, 5200, 200
     x_large_size = sample_saltelli.sample(problem, n_end, calc_second_order=False)
     
     for i in range(n_start, n_end, n_step):
@@ -51,45 +54,56 @@ if not file_exist:
             y_eval = evaluate(x_sobol[-(len_params + 2) * n_step:], a)
             y_sobol =  np.append(y_sobol, y_eval)
             y_sobol = evaluate(x_sobol, a)
-        sa_sobol = analyze_sobol.analyze(problem, 
-                    y_sobol, calc_second_order=False, num_resamples=1000, conf_level=0.95, dummy=dummy)
-        sa_sobol = sa_sobol[0]
 
+        sa_sobol = analyze_sobol.analyze(problem, y_sobol, 
+                            calc_second_order=False, num_resamples=1000, conf_level=0.95, dummy=dummy)
         # use toposort find parameter sa block
         conf_lower = sa_sobol['total_rank_ci'][0]
         conf_upper = sa_sobol['total_rank_ci'][1]
         if dummy: 
-            abs_sort = partial_rank(len_params + 1, conf_lower, conf_upper)
+            len_dummy = len_params + 1
+            abs_sort = partial_rank(len_dummy, conf_lower, conf_upper)
         else:
             abs_sort = partial_rank(len_params, conf_lower, conf_upper)
-        rank_list = list(toposort(abs_sort))
 
+        rank_list = list(toposort(abs_sort))
         key = 'result_'+str(i)
         partial_order[key] = {j: list(rank_list[j]) for j in range(len(rank_list))}
-
         # Save results
-        sa_total[key] = sa_sobol['ST']
-        sa_total_conf[key] = sa_sobol['ST_conf']
-        sa_main[key] = sa_sobol['S1']
-        sa_main_conf[key] = sa_sobol['S1_conf']
+        sa_total.loc[:, key] = sa_sobol['ST']
+        sa_total_conf.loc[:, key] = sa_sobol['ST_conf']
+        sa_main.loc[:, key] = sa_sobol['S1']
+        sa_main_conf.loc[:, key] = sa_sobol['S1_conf']
 
-        # error_dict[key], pool_res = group_fix(partial_order[key], evaluate, 
-        #                 x_all, y_true, x_default, rand, pool_res, a, file_exist)
+        if error_cal:
+            error_dict[key], pool_res = group_fix(partial_order[key], evaluate, 
+                            x_all, y_true, x_default, rand, pool_res, a, file_exist)
+
+    sa_all = pd.concat([sa_total, sa_total_conf, sa_main, sa_main_conf], axis = 0)
+    sa_all.loc[:, 'Type'] = [*['ST']*len_dummy, *['ST_conf'] * len_dummy, *['S1'] * len_dummy, *['S1_conf'] * len_dummy]
+    sa_all.to_csv(SOBOL_DATA_DIR + 'Sobol_indices.csv')
 
     with open(cache_file, 'w') as fp:
         json.dump(partial_order, fp, indent=2)
+        
 else:
     with open(cache_file, 'r') as fp:
         partial_order = json.load(fp)
 
-    # for key, value in partial_order.items():
-    #     error_dict[key], pool_res = group_fix(value, evaluate, x_all, y_true, 
-    #                                     x_default, rand, pool_res, a, file_exist)
+    if error_cal:
+        for key, value in partial_order.items():
+            error_dict[key], pool_res = group_fix(value, evaluate, x_all, y_true, 
+                                        x_default, rand, pool_res, a, file_exist)
 
-# # convert the result into dataframe
-# key_outer = list(error_dict.keys())
-# f_names = list(error_dict[key_outer[0]].keys())
-# for ele in f_names:
-#     dict_measure = {key: error_dict[key][ele] for key in key_outer}
-#     df = to_df(partial_order, dict_measure)
-#     df.to_csv(f'{SOBOL_DATA_DIR}{x_default}/{ele}.csv')
+# convert the result into dataframe
+if error_cal:
+    key_outer = list(error_dict.keys())
+    f_names = list(error_dict[key_outer[0]].keys())
+    for ele in f_names:
+        dict_measure = {key: error_dict[key][ele] for key in key_outer}
+        df = to_df(partial_order, dict_measure)
+        df.to_csv(f'{SOBOL_DATA_DIR}{x_default}/{ele}.csv')
+
+
+
+            
