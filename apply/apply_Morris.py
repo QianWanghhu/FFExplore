@@ -13,14 +13,15 @@ from SALib.sample import latin as sample_latin
 from SALib.test_functions.Sobol_G import evaluate, total_sensitivity_index as total_sa
 
 # import settings for Sobol G-function and returns necessary elements
-from utils.Sobol_G_setting import set_sobol_g_func
+from utils.Sobol_G_setting import set_sobol_g_func, add_dummy
 from utils.group_fix import group_fix
 from utils.partial_sort import to_df, partial_rank
 
 from settings import MORRIS_DATA_DIR
 
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-cache_file = '{}{}'.format(MORRIS_DATA_DIR, 'morris_seed123.json')
+seed = 1010
+cache_file = f'{MORRIS_DATA_DIR}morris_{seed}.json'
 
 # calculate results with fixed parameters
 x_all = sample_latin.sample(problem, 10000)#, seed=101
@@ -44,11 +45,11 @@ for x_default in defaults_list:
         partial_order = {}
         mu_st, sigma_dt = {}, {}
         rank_lower_dt, rank_upper_dt = {}, {}
-        n_start, n_end, n_step = 20, 130, 10
-        x_large_size = sample_morris.sample(problem, n_end, num_levels=4, seed=1010)
+        n_start, n_end, n_step = 10, 150, 10
+        x_large_size = sample_morris.sample(problem, n_end, num_levels=4, seed=seed) #, seed=seed
         for i in range(n_start, n_end, n_step):
             # partial ordering
-            x_morris= x_large_size[:i * (len_params + 1)]
+            x_morris = x_large_size[:i * (len_params + 1)]
             if i == n_start:
                 y_morris = evaluate(x_morris, a)
             else:
@@ -62,6 +63,7 @@ for x_default in defaults_list:
             conf_upper = sa_dict['mu_star_rank_conf'][1]
 
             abs_sort = partial_rank(len_params, conf_lower, conf_upper)
+            
             rank_list = list(toposort(abs_sort))
             key = 'result_'+str(i)     
             partial_order[key] = {j: list(rank_list[j]) for j in range(len(rank_list))}
@@ -72,9 +74,9 @@ for x_default in defaults_list:
             rank_upper_dt[key] = conf_upper
             sigma_dt[key] = sa_dict['sigma']
 
-            error_dict[key], pool_res = group_fix(partial_order[key], evaluate, 
-                                                x_all, y_true, x_default, rand, 
-                                                pool_res, a, file_exists)
+            # error_dict[key], pool_res = group_fix(partial_order[key], evaluate, 
+            #                                     x_all, y_true, x_default, rand, 
+            #                                     pool_res, a, file_exists)
 
         with open(cache_file, 'w') as fp:
             json.dump(partial_order, fp, indent=2)
@@ -82,15 +84,15 @@ for x_default in defaults_list:
         with open(cache_file, 'r') as fp:
             partial_order = json.load(fp)
 
-        for key, value in partial_order.items():
-            error_dict[key], pool_res = group_fix(value, evaluate, x_all, y_true, 
-                                                x_default, rand, pool_res, a, file_exists)
+        # for key, value in partial_order.items():
+        #     error_dict[key], pool_res = group_fix(value, evaluate, x_all, y_true, 
+        #                                         x_default, rand, pool_res, a, file_exists)
 # End
 
-    # convert the result into dataframe
-    key_outer = list(error_dict.keys())
-    f_names = list(error_dict[key_outer[0]].keys())
-    for ele in f_names:
-        dict_measure = {key: error_dict[key][ele] for key in key_outer}
-        df = to_df(partial_order, dict_measure)
-        df.to_csv(f'{MORRIS_DATA_DIR}{x_default}/{ele}.csv')
+    # # convert the result into dataframe
+    # key_outer = list(error_dict.keys())
+    # f_names = list(error_dict[key_outer[0]].keys())
+    # for ele in f_names:
+    #     dict_measure = {key: error_dict[key][ele] for key in key_outer}
+    #     df = to_df(partial_order, dict_measure)
+    #     df.to_csv(f'{MORRIS_DATA_DIR}{x_default}/{ele}.csv')
