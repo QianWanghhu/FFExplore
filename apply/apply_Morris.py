@@ -20,7 +20,7 @@ from utils.partial_sort import to_df, partial_rank
 from settings import MORRIS_DATA_DIR
 
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-seed = 1010
+seed = 123
 cache_file = f'{MORRIS_DATA_DIR}morris_{seed}.json'
 
 # calculate results with fixed parameters
@@ -45,8 +45,8 @@ for x_default in defaults_list:
         partial_order = {}
         mu_st, sigma_dt = {}, {}
         rank_lower_dt, rank_upper_dt = {}, {}
-        n_start, n_end, n_step = 10, 150, 10
-        x_large_size = sample_morris.sample(problem, n_end, num_levels=4, seed=seed) #, seed=seed
+        n_start, n_end, n_step = 10, 130, 10
+        x_large_size = sample_morris.sample(problem, n_end, num_levels=4, seed=123) #
         for i in range(n_start, n_end, n_step):
             # partial ordering
             x_morris = x_large_size[:i * (len_params + 1)]
