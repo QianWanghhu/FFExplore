@@ -6,3 +6,11 @@ apply/utils/__pycache__/
 *.pyc
 
 apply/settings.py
+
+output/
+
+.ipynb_checkpoints/
+
+salib-prod/
+
+salib-dummy/
