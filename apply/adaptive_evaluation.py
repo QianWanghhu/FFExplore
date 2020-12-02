@@ -2,58 +2,84 @@
 
 import pandas as pd
 import numpy as np
-import json
+import os
 from SALib.sample import latin as sample_latin
 from SALib.test_functions.Sobol_G import evaluate
 
 # import settings for Sobol G-function and returns necessary elements
 from utils.Sobol_G_setting import set_sobol_g_func
-from utils.group_fix import group_fix
-from utils.partial_sort import to_df
+from utils.group_fix import group_fix, index_fix, results_exist
+from utils.group_fix import evaluate_wrap
 
-from settings import MORRIS_DATA_DIR
+from settings import MORRIS_DATA_DIR, METRIC_NAME
 
-a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-cache_file = f'{MORRIS_DATA_DIR}morris_1010.json'
-# cache_file = f'../output/morris/morris_1010.json'
-with open(cache_file, 'r') as fp: partial_order = json.load(fp)
+a, x, x_bounds, _, _, problem = set_sobol_g_func()
 
 # calculate results with fixed parameters
 seed = 101
-# defaults_list = np.append([0, 0.1, 0.2, 0.4, 0.5], np.round(np.linspace(0.21, 0.3, 10), 2))
-defaults_list = [0.25]
-defaults_list.sort()
-error_dict = {}; partial_key = 'result_80'
-file_exists = True
-mse = {}
-nstart, nstop, nstep = 10, 1001, 10
-x_all = sample_latin.sample(problem, nstop, seed)
+x_default = 0.25
+file_exist = True
+nstart, nstop, nstep = 10, 1000, 10
+#  x_all = sample_latin.sample(problem, nstop, seed)
 
-for n in range(nstart, nstop, nstep):
+# store results from fixing parameters in dict
+error_dict = {}
+combs_fix = [[15, 16, 17, 18, 19, 20], [i for i in range(21)]]
+pool_res = {}; mse = {}; y_fix = np.array([])
+ind_fix = combs_fix[1]
+
+file_sample = f'{MORRIS_DATA_DIR}/morris_samples.csv'
+if os.path.exists(file_sample):
+    y_true_exist = True
+    samples = pd.read_csv(file_sample, index_col = 'Unnamed: 0').values
+    x_all = samples[:, 0:-1]
+    y_true = samples[:, -1]
+else:
+    bounds = problem['bounds']
+    min_bnds = [lb[0] for lb in bounds]
+    max_bnds = [lb[1] for lb in bounds]
+    x_all = np.random.uniform(min_bnds, max_bnds, size=(nstop, problem['num_vars']))
+
+
+for n in range(nstart, nstop + 1, nstep):
     print(n)
-    x_subset = x_all[:n]    
-    try:
-        y_subset = np.append(y_subset, evaluate(x_subset[-nstep:], a))
-    except NameError:
-        y_subset = evaluate(x_subset, a)
+    x_subset = x_all[:n]
+    if y_true_exist == True:
+        y_subset = y_true[:n]
+    else:
+        try:
+            y_subset = np.append(y_subset, evaluate_wrap(evaluate, x_subset[-nstep:], a))
+        except NameError:
+            y_subset = evaluate_wrap(evaluate, x_subset, a)
 
-    mse[f'{n}'] = [np.var(y_subset) / y_subset.shape[0]]
-    y_true_ave = np.average(y_subset)
-    rand = np.random.randint(0, y_subset.shape[0], size=(1000, y_subset.shape[0]))
-    for x_default in defaults_list:
-        error_dict[f'{n}'], pool_res = group_fix(partial_order[partial_key], evaluate, 
-                                        x_subset, y_subset, x_default, rand, 
-                                        {}, a, file_exists)
-    # End for
-# End for
+    skip_calcul = results_exist(ind_fix, {})
+
+    if skip_calcul == False:
+        x_copy = np.copy(x_subset[-nstep:])
+        x_copy[:, ind_fix] = [x_default]
+        fix_temp = evaluate_wrap(evaluate, x_copy, a)
+        y_fix = np.append(y_fix, fix_temp, axis=0)
+        mse[f'{n}'] = [np.var(y_subset) / y_subset.shape[0]]
+        y_true_ave = np.average(y_subset)
+        rand = np.random.randint(0, y_subset.shape[0], size=(1000, y_subset.shape[0]))
+        error_dict[f'{n}'], pool_res, y_fix = group_fix(ind_fix, y_subset, y_fix, rand, {}, file_exist)
+    else:
+        # map index to calculated values
+        error_dict[f'{n}'] = skip_calcul
+        y_fix = np.copy(y_fix)
+    # # End for
 
 # convert the result into dataframe
-key_outer = list(error_dict.keys())
-f_names = list(error_dict[key_outer[0]].keys())
-for ele in f_names:
-    dict_measure = {key: error_dict[key][ele] for key in key_outer}
-    df = pd.DataFrame.from_dict(dict_measure)
-    df.to_csv(f'{MORRIS_DATA_DIR}/adaptive/{ele}.csv')
-mse = pd.DataFrame.from_dict(mse).T
-mse.rename(columns = {0: 'mse'})
-mse.to_csv(f'{MORRIS_DATA_DIR}/adaptive/mse.csv')
+df = pd.DataFrame.from_dict(error_dict)
+df.index = METRIC_NAME
+df.to_csv(f'{MORRIS_DATA_DIR}/adaptive/fix_{len(ind_fix)}.csv')
+
+if not y_true_exist:
+    xy_df = pd.DataFrame(data = x_all, index = np.arange(nstop), columns = problem['names'])
+    xy_df.loc[:, 'y'] = y_subset
+    xy_df.to_csv(f'{MORRIS_DATA_DIR}/morris_samples.csv')
+    mse = pd.DataFrame.from_dict(mse).T
+    mse.rename(columns = {0: 'mse'})
+    mse.to_csv(f'{MORRIS_DATA_DIR}/adaptive/mse.csv')
+
+
