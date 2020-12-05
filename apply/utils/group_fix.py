@@ -173,15 +173,15 @@ def group_fix(ind_fix, y_true, results_fix,
 
     # update pool_results
     measure_list = [
-                    mae, var, ppmc, mae_lower, mae_upper, 
-                    var_lower, var_upper,ppmc_lower, ppmc_upper,
+                    mae, var, ppmc, mae_lower,  var_lower, 
+                    ppmc_lower, mae_upper, var_upper, ppmc_upper,
                     ]
 
     pool_results = pool_update(ind_fix, measure_list, pool_results)
     # End if
 # End for()
 
-    dict_return = [mae, var, ppmc, mae_lower,  var_lower,  ppmc_lower, mae_upper, var_upper,  ppmc_upper]
+    dict_return = [mae, var, ppmc, mae_lower, var_lower, ppmc_lower, mae_upper, var_upper,  ppmc_upper]
     
     return dict_return, pool_results, results_fix
 
