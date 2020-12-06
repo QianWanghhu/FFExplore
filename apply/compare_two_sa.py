@@ -26,10 +26,11 @@ for fn in cache_file:
         partial_order = json.load(fp)
 
     if 'morris' in fn:
-        out_path = f'../output/morris/latin_adaptive/{x_default}'
+        out_path = f'../output/morris/compare/{x_default}'
+        key = list(partial_order.keys())[6]; partial_order = {key: partial_order[key]}
     else:
         key = list(partial_order.keys())[3]; partial_order = {key: partial_order[key]}
-        out_path = f'../output/sobol/{x_default}'
+        out_path = f'../output/sobol/compare/{x_default}'
 
     if not os.path.exists(out_path): os.makedirs(out_path)
     error_dict = {} 
@@ -41,8 +42,8 @@ for fn in cache_file:
         samples = pd.read_csv(file_sample, index_col = 'Unnamed: 0').values
         x_all = samples[:, 0:-1]
         y_true = samples[:, -1]  
-        x_subset = x_all[:10]
-        y_subset = y_true[:10]
+        x_subset = x_all[:2400]
+        y_subset = y_true[:2400]
 
     for key, value in partial_order.items():
         num_group = len(value) - 1
@@ -75,7 +76,7 @@ for fn in cache_file:
                     'mae_lower': mae_lower, 'var_lower': var_lower, 'ppmc_lower': ppmc_lower,
                     'mae_upper': mae_upper, 'var_upper': var_upper, 'ppmc_upper': ppmc_upper}
         # # End for
-
+        
     # convert the result into dataframe
     key_outer = list(error_dict.keys())
     f_names = list(error_dict[key_outer[0]].keys())
