@@ -72,3 +72,16 @@ def partial_rank(len_params, conf_lower, conf_upper):
         abs_sort[m] = set_temp
 
     return abs_sort
+
+def compute_bootstrap_ranks(sobol_order_resample, conf_level):
+    """Calculate confidence interval for ranking of mu_star.
+    """
+    D, num_resamples = sobol_order_resample.shape
+    rankings = np.zeros_like(sobol_order_resample)
+    ranking_ci = np.zeros((D, 2))
+    for resample in range(num_resamples):
+	    rankings[:, resample] = np.argsort(sobol_order_resample[:, resample]).argsort()
+
+    ranking_ci = np.quantile(rankings,[(1-conf_level)/2, 0.5 + conf_level/2], axis=1)
+
+    return ranking_ci
