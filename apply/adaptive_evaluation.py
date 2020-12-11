@@ -11,14 +11,13 @@ from utils.Sobol_G_setting import set_sobol_g_func
 from utils.group_fix import group_fix, index_fix, results_exist
 from utils.group_fix import evaluate_wrap
 
-from settings import MORRIS_DATA_DIR, METRIC_NAME
+from settings import MORRIS_DATA_DIR, METRIC_NAME, SOBOL_DATA_DIR
 
 a, x, x_bounds, _, _, problem = set_sobol_g_func()
 
 # calculate results with fixed parameters
 x_default = 0.25
 file_exist = True
-nstart, nstop, nstep = 10, 5000, 10
 
 # store results from fixing parameters in dict
 error_dict = {}
@@ -27,15 +26,17 @@ combs_fix = [[20], [i for i in range(15, 21)], [i for i in range(12, 21)],
 pool_res = {}; mse = {}; y_fix = np.array([])
 
 ind_fix = combs_fix[2]
-file_sample = f'{MORRIS_DATA_DIR}/metric_samples.csv'
+file_sample = f'{SOBOL_DATA_DIR}/satelli_samples.csv'
 if os.path.exists(file_sample):
     y_true_exist = True
     samples = pd.read_csv(file_sample, index_col = 'Unnamed: 0').values
     x_all = samples[:, 0:-1]
     y_true = samples[:, -1]
+    nstart, nstop, nstep = 10, y_true.size, 10
     print('=======READ INPUT SAMPLES========')
 else:
     y_true_exist = False
+    nstart, nstop, nstep = 10, 5000, 10
     bounds = problem['bounds']
     min_bnds = [lb[0] for lb in bounds]
     max_bnds = [lb[1] for lb in bounds]
@@ -68,13 +69,13 @@ for n in range(nstart, nstop + 1, nstep):
         # map index to calculated values
         error_dict[f'{n}'] = skip_calcul
         y_fix = np.copy(y_fix)
-    # # End for
+    # End for
 print('=======FINISH CALCULATION========')
 
 # convert the result into dataframe
 df = pd.DataFrame.from_dict(error_dict)
 df.index = METRIC_NAME
-df.to_csv(f'{MORRIS_DATA_DIR}/latin_adaptive/fix_{len(ind_fix)}.csv')
+df.to_csv(f'{MORRIS_DATA_DIR}/sobol_adaptive/fix_{len(ind_fix)}.csv')
 
 if not y_true_exist:
     xy_df = pd.DataFrame(data = x_all, index = np.arange(nstop), columns = problem['names'])

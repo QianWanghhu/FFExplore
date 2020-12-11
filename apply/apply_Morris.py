@@ -29,7 +29,7 @@ if not file_exists:
     mu_st, sigma_dt = {}, {}
     rank_lower_dt, rank_upper_dt = {}, {}
     n_start, n_end, n_step = 10, 130, 10
-    x_large_size = sample_morris.sample(problem, n_end, num_levels=8, seed=123)
+    x_large_size = sample_morris.sample(problem, n_end, num_levels=4)
     for i in range(n_start, n_end, n_step):
         # partial ordering
         x_morris = x_large_size[:i * (len_params + 1)]
@@ -63,6 +63,10 @@ else:
     with open(cache_file, 'r') as fp:
         partial_order = json.load(fp)
 
+if not os.path.exists('../output/morris/morris_samples.csv'):
+    xy_df = pd.DataFrame(data = x_morris, index = np.arange(x_morris.shape[0]), columns = problem['names'])
+    xy_df.loc[:, 'y'] = y_morris
+    xy_df.to_csv(f'../output/morris/morris_samples.csv')
         
 # End
 # defaults_list = np.append([0, 0.1, 0.2, 0.4, 0.5], np.round(np.linspace(0.21, 0.3, 10), 2))
@@ -76,7 +80,7 @@ for x_default in defaults_list:
     error_dict = {}; pool_res = {}
     y_fix = np.array([])
     # get input samples
-    file_sample = f'../output/morris/metric_samples.csv'
+    file_sample = '../output/morris/metric_samples.csv'
     if os.path.exists(file_sample):
         y_true_exist = True
         samples = pd.read_csv(file_sample, index_col = 'Unnamed: 0').values
