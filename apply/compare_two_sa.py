@@ -16,7 +16,7 @@ from utils.group_fix import evaluate_wrap
 
 from settings import MORRIS_DATA_DIR, SOBOL_DATA_DIR
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-cache_file = [f'../output/morris/morris_8_123.json', f'../output/sobol/sobol_123.json' ]
+cache_file = [f'../output/reuse_sample/morris/morris_8_123.json', f'../output/reuse_sample/sobol/sobol_123.json' ]
 file_exists = True
 pool_res = {}; x_default = 0.25
 
@@ -26,24 +26,24 @@ for fn in cache_file:
         partial_order = json.load(fp)
 
     if 'morris' in fn:
-        out_path = f'../output/morris/compare/{x_default}'
+        out_path = f'../output/reuse_sample/morris/compare/{x_default}'
         key = list(partial_order.keys())[6]; partial_order = {key: partial_order[key]}
     else:
         key = list(partial_order.keys())[3]; partial_order = {key: partial_order[key]}
-        out_path = f'../output/sobol/compare/{x_default}'
+        out_path = f'../output/reuse_sample/sobol/compare/{x_default}'
 
     if not os.path.exists(out_path): os.makedirs(out_path)
     error_dict = {} 
     y_fix = np.array([])
     # get input samples
-    file_sample = f'../output/morris/metric_samples.csv'
+    file_sample = f'../output/reuse_sample/morris/metric_samples.csv'
     if os.path.exists(file_sample):
         y_true_exist = True
         samples = pd.read_csv(file_sample, index_col = 'Unnamed: 0').values
         x_all = samples[:, 0:-1]
         y_true = samples[:, -1]  
-        x_subset = x_all[:2400]
-        y_subset = y_true[:2400]
+        x_subset = x_all[:100]
+        y_subset = y_true[:100]
 
     for key, value in partial_order.items():
         num_group = len(value) - 1

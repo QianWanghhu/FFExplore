@@ -25,8 +25,8 @@ combs_fix = [[20], [i for i in range(15, 21)], [i for i in range(12, 21)],
     [i for i in range(11, 21)], [*[i for i in range(11, 21)], 8], [i for i in range(4, 21)], [i for i in range(21)]]
 pool_res = {}; mse = {}; y_fix = np.array([])
 
-ind_fix = combs_fix[2]
-file_sample = f'{SOBOL_DATA_DIR}/satelli_samples.csv'
+ind_fix = combs_fix[1]
+file_sample = f'{MORRIS_DATA_DIR}/metric_samples.csv'
 if os.path.exists(file_sample):
     y_true_exist = True
     samples = pd.read_csv(file_sample, index_col = 'Unnamed: 0').values
@@ -75,7 +75,7 @@ print('=======FINISH CALCULATION========')
 # convert the result into dataframe
 df = pd.DataFrame.from_dict(error_dict)
 df.index = METRIC_NAME
-df.to_csv(f'{MORRIS_DATA_DIR}/sobol_adaptive/fix_{len(ind_fix)}.csv')
+df.to_csv(f'{MORRIS_DATA_DIR}/saltelli_adaptive/fix_{len(ind_fix)}.csv')
 
 if not y_true_exist:
     xy_df = pd.DataFrame(data = x_all, index = np.arange(nstop), columns = problem['names'])
@@ -83,6 +83,6 @@ if not y_true_exist:
     xy_df.to_csv(f'{MORRIS_DATA_DIR}/metric_samples.csv')
     mse = pd.DataFrame.from_dict(mse).T
     mse.rename(columns = {0: 'mse'})
-    mse.to_csv(f'{MORRIS_DATA_DIR}/latin_adaptive/mse.csv')
+    mse.to_csv(f'{MORRIS_DATA_DIR}/saltelli_adaptive/mse.csv')
 
 print('=======FINISH WRITING OUTPUTS========')
