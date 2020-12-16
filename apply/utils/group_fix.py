@@ -154,6 +154,7 @@ def group_fix(ind_fix, y_true, results_fix,
     # compare results with insignificant parameters fixed
     Nresample = rand.shape[0]
     var_bt,  ppmc_bt,  mae_bt = np.zeros(Nresample), np.zeros(Nresample), np.zeros(Nresample)
+    assert isinstance(ind_fix, list), 'ind_fix should be a list'
 
     for ii in range(Nresample):            
         I = rand[ii]
