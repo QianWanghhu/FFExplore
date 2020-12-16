@@ -22,13 +22,13 @@ nstart = 2400
 # store results from fixing parameters in dict
 error_dict = {}
 combs_fix = [[i for i in range(15, 21)], [i for i in range(12, 21)]]
-file_sample = f'../output/morris/metric_samples.csv'
+file_sample = f'../output/reuse_sample/morris/metric_samples.csv'
 y_true_exist = True
 samples = pd.read_csv(file_sample, index_col = 'Unnamed: 0').values
 x_all = samples[:, 0:-1]
 y_true = samples[:, -1]  
-x_subset = x_all[:2400]
-y_subset = y_true[:2400]
+x_subset = x_all[:100]
+y_subset = y_true[:100]
 defaults_list.sort()
 
 for ind_fix in combs_fix:
@@ -59,7 +59,7 @@ for ind_fix in combs_fix:
 
 # convert the result into dataframe
 for key, value in error_dict.items():
-    out_path = f'../output/morris/'
+    out_path = f'../output/reuse_sample/morris/'
     if not os.path.exists(out_path): os.makedirs(out_path)
     df= pd.DataFrame(value)
     df.to_csv(f'{out_path}/{key}.csv')

@@ -21,7 +21,7 @@ from utils.group_fix import evaluate_wrap
 from settings import MORRIS_DATA_DIR
 
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-cache_file = f'../output/morris/morris_test.json'
+cache_file = f'../output/morris/morris_8_123.json'
 file_exists = os.path.exists(cache_file)
 if not file_exists:
     # Loop of Morris
@@ -63,10 +63,10 @@ else:
     with open(cache_file, 'r') as fp:
         partial_order = json.load(fp)
 
-if not os.path.exists('../output/morris/morris_samples.csv'):
+if not os.path.exists('../output/reuse_sample/morris/metric_samples.csv'):
     xy_df = pd.DataFrame(data = x_morris, index = np.arange(x_morris.shape[0]), columns = problem['names'])
     xy_df.loc[:, 'y'] = y_morris
-    xy_df.to_csv(f'../output/morris/morris_samples.csv')
+    xy_df.to_csv(f'../output/reuse_sample/morris/metric_samples.csv')
         
 # End
 # defaults_list = np.append([0, 0.1, 0.2, 0.4, 0.5], np.round(np.linspace(0.21, 0.3, 10), 2))
@@ -74,13 +74,13 @@ defaults_list = [0.25]
 defaults_list.sort()
 
 for x_default in defaults_list:
-    out_path = f'../output/morris/latin_adaptive/{x_default}'
+    out_path = f'../output/reuse_sample/morris/saltelli_adaptive/{x_default}'
     if not os.path.exists(out_path): os.makedirs(out_path)
 
     error_dict = {}; pool_res = {}
     y_fix = np.array([])
     # get input samples
-    file_sample = '../output/morris/metric_samples.csv'
+    file_sample = '../output/reuse_sample/morris/metric_samples.csv'
     if os.path.exists(file_sample):
         y_true_exist = True
         samples = pd.read_csv(file_sample, index_col = 'Unnamed: 0').values

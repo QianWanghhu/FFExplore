@@ -21,7 +21,7 @@ from utils.group_fix import evaluate_wrap
 from settings import SOBOL_DATA_DIR
 
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-cache_file = f'../output/sobol/sobol_test.json'
+cache_file = f'../output/reuse_sample/sobol/sobol_123.json'
 
 seed = np.random.randint(0, 1000); dummy = False
 file_exists = os.path.exists(cache_file)
@@ -70,13 +70,13 @@ else:
 
 
 # Obtain A and B metrics
-from SALib.analyze.sobol import separate_output_values
-index_y = np.arange(0, x_sobol.shape[0])
-index_A, index_B, _, _ = separate_output_values(index_y, 
-    problem['num_vars'], nstop-1, False)
-index_AB = np.append(index_A, index_B)
-y = y_sobol[index_AB]
-x = x_sobol[index_AB, :]
-xy_df = pd.DataFrame(data = x, index = np.arange(0, x.shape[0]), columns = problem['names'])
-xy_df.loc[:, 'y'] = y
-xy_df.to_csv(f'../output/sobol/satelli_samples.csv')
+# from SALib.analyze.sobol import separate_output_values
+# index_y = np.arange(0, x_sobol.shape[0])
+# index_A, index_B, _, _ = separate_output_values(index_y, 
+#     problem['num_vars'], nstop-1, False)
+# index_AB = np.append(index_A, index_B)
+# y = y_sobol[index_AB]
+# x = x_sobol[index_AB, :]
+# xy_df = pd.DataFrame(data = x, index = np.arange(0, x.shape[0]), columns = problem['names'])
+# xy_df.loc[:, 'y'] = y
+# xy_df.to_csv(f'../output/sobol/satelli_samples.csv')
