@@ -13,3 +13,5 @@ apply/settings.py
 salib-prod/
 
 salib-dummy/
+
+*.cfg
