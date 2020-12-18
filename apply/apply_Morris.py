@@ -21,7 +21,7 @@ from utils.group_fix import evaluate_wrap
 from settings import MORRIS_DATA_DIR
 
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-cache_file = f'../output/morris/morris_8_123.json'
+cache_file = f'../output/morris/morris_test.json'
 file_exists = os.path.exists(cache_file)
 if not file_exists:
     # Loop of Morris
@@ -62,6 +62,7 @@ if not file_exists:
 else:
     with open(cache_file, 'r') as fp:
         partial_order = json.load(fp)
+
 
 if not os.path.exists('../output/reuse_sample/morris/metric_samples.csv'):
     xy_df = pd.DataFrame(data = x_morris, index = np.arange(x_morris.shape[0]), columns = problem['names'])
