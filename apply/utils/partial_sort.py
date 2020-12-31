@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from toposort import toposort, toposort_flatten
 
 def to_df(partial_order, fix_dict):
     """
@@ -39,14 +40,11 @@ def to_df(partial_order, fix_dict):
     fix_df = pd.DataFrame.from_dict(fix_df)
     return fix_df
 
-def partial_rank(len_params, conf_lower, conf_upper):
+def partial_rank(conf_lower, conf_upper):
     """Perform partial ranking.
 
     Parameters
     ----------
-    len_params : int, 
-        Number of parameters
-
     conf_lower : numpy.ndarray, 
         Lower confidence interval values for each parameter
 
@@ -58,29 +56,32 @@ def partial_rank(len_params, conf_lower, conf_upper):
     rank_list: dict,
         list of partial rank
     """
-    rank_conf = {j:None for j in range(len_params)}
-    for j in range(len_params):
+    num_vars = len(conf_lower)
+    rank_conf = {j:None for j in range(num_vars)}
+    for j in range(num_vars):
         rank_conf[j] = [conf_lower[j], conf_upper[j]]
 
-    abs_sort= {j:None for j in range(len_params)}
-    for m in range(len_params):
+    abs_sort= {j:None for j in range(num_vars)}
+    for m in range(num_vars):
         list_temp = np.where(conf_lower >= conf_upper[m])
         set_temp = set()
         if len(list_temp) > 0:
             for ele in list_temp[0]:
                 set_temp.add(ele)
         abs_sort[m] = set_temp
+    rank_list = list(toposort(abs_sort))
+    return rank_list
 
-    return abs_sort
-
-def compute_bootstrap_ranks(sobol_order_resample, conf_level):
+def compute_bootstrap_ranks(sa_matrix, conf_level):
     """Calculate confidence interval for ranking of mu_star.
     """
-    D, num_resamples = sobol_order_resample.shape
-    rankings = np.zeros_like(sobol_order_resample)
+    assert (isinstance(sa_matrix, np.ndarray)), \
+        'sa_matrix should be an array of two dimensions (num_vars, num_samples)'    
+    D, num_resamples = sa_matrix.shape
+    rankings = np.zeros_like(sa_matrix)
     ranking_ci = np.zeros((D, 2))
     for resample in range(num_resamples):
-	    rankings[:, resample] = np.argsort(sobol_order_resample[:, resample]).argsort()
+	    rankings[:, resample] = np.argsort(sa_matrix[:, resample]).argsort()
 
     ranking_ci = np.quantile(rankings,[(1-conf_level)/2, 0.5 + conf_level/2], axis=1)
 
