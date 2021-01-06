@@ -30,7 +30,7 @@ def morris_ranking(cache_file, seed=101):
         mu_st, sigma_dt = {}, {}
         rank_lower_dt, rank_upper_dt = {}, {}
         n_start, n_end, n_step = 10, 130, 10
-        x_large_size = sample_morris.sample(problem, n_end, num_levels=4)
+        x_large_size = sample_morris.sample(problem, n_end, num_levels=4, seed=684)
         for i in range(n_start, n_end, n_step):
             # partial ordering
             x_morris = x_large_size[:i * (len_params + 1)]
