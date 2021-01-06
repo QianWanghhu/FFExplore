@@ -20,7 +20,7 @@ from utils.group_fix import group_fix
 from utils.partial_sort import to_df, partial_rank, compute_bootstrap_ranks
 
 def set_genz():
-    a = np.array([0, 0.0001, 0.0001, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.03, 0.5, 1, 2, 2.5, 2.5, 3])
+    a = np.array([1e-7, 0.0001, 0.0001, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.03, 0.5, 1, 2, 2.5, 2.5, 3])
     # a = np.array([0.1, 0.1, 0.2, 0.3, 0.5, 1])
     # a = np.array([0, 0.0001, 0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 0.9, 1, 1.5, 2, 2, 2.5, 3])
     num_nvars = a.shape[0]
@@ -84,7 +84,7 @@ def gaussian_process():
                 benchmark.variable, num_samples, random_state=rand)
     nvalidation = 300
     validation_samples = samples[:, -nvalidation:]
-    validation_vals = benchmark.fun(validation_samples).flatten()
+    validation_vals = benchmark.fun(validation_samples)
     error_list = []
     [nstart, nstop, nstep] = [(10 * num_nvars), 400, 10] #(10 * num_nvars)
     nsamples = 100 # this is the sample used for Sobol' sensitivity analysis
@@ -94,9 +94,9 @@ def gaussian_process():
         print(ntrains)
         train_samples = samples[:, 0:ntrains]
         if ntrains == nstart:
-            vals_step = benchmark.fun(train_samples).flatten()
+            vals_step = benchmark.fun(train_samples)
         else:
-            vals_step = benchmark.fun(train_samples[:, -nstep:]).flatten()
+            vals_step = benchmark.fun(train_samples[:, -nstep:])
 
         try:
             train_vals = np.hstack((train_vals, vals_step))
