@@ -1,9 +1,10 @@
 import numpy as np
 from scipy.stats import pearsonr, norm
 import pandas as pd
+from scipy.stats import sem
 
 def group_fix(ind_fix, y_true, results_fix,
-            rand, pool_results, file_exist=False):
+            rand, pool_results, file_exist=False, boot=False):
     
     # compare results with insignificant parameters fixed
     Nresample = rand.shape[0]
@@ -17,14 +18,20 @@ def group_fix(ind_fix, y_true, results_fix,
         y_true_ave = y_true_resample.mean()
         y_true_var = y_true_resample.var()
         var_bt[ii] = results_fix_resample.var() / y_true_var
+        # import pdb; pdb.set_trace()
         ppmc_bt[ii] = pearsonr(results_fix_resample, y_true_resample)[0]
         mae_bt[ii] = np.abs((results_fix_resample - y_true_resample) / y_true_resample).mean(axis=0) # / y_true_ave
     # End for
     
     mae, var, ppmc = mae_bt.mean(), var_bt.mean(), ppmc_bt.mean()
-    var_lower, var_upper = np.quantile(var_bt, [0.025, 0.975])
-    ppmc_lower, ppmc_upper= np.quantile(ppmc_bt, [0.025, 0.975])
-    mae_lower, mae_upper = np.quantile(mae_bt, [0.025, 0.975])
+    if not boot:
+        var_lower, var_upper = np.quantile(var_bt, [0.025, 0.975])
+        ppmc_lower, ppmc_upper= np.quantile(ppmc_bt, [0.025, 0.975])
+        mae_lower, mae_upper = np.quantile(mae_bt, [0.025, 0.975])
+    else:
+        var_lower, var_upper = var - np.std(var), var + np.std(var)
+        ppmc_lower, ppmc_upper= ppmc - np.std(ppmc), ppmc + np.std(ppmc)
+        mae_lower, mae_upper = mae - np.std(mae), mae + np.std(mae)
 
     # update pool_results
     measure_list = [
@@ -115,3 +122,30 @@ def evaluate_wrap(evaluate, x, a):
         return evaluate(x)
     else:
         return evaluate(x, a)
+
+
+def stderr(seq):
+    """
+    Calculate the standard error of mean.
+    """        
+    assert isinstance(seq, np.ndarray), \
+        "The input matrix should be a matrix of two dimensions (N * r)"
+    seq_mean = seq.mean(axis=1)
+    seq_stderr = sem(seq, axis=1, ddof=1)
+    return seq_mean, seq_stderr
+
+def std_stderr(seq):
+    """
+    Calculate the standard error of standard deviation.
+    """        
+    assert isinstance(seq, np.ndarray), \
+        "The input matrix should be a matrix of two dimensions (N * r)"
+    r = seq.shape[1]
+    seq_std = np.std(seq, axis=1)
+    seq_mean, _ = stderr(seq)
+    sigma = np.square((seq.transpose() - seq_mean).transpose())
+    sigma_mean = sigma.mean(axis=1)
+    sigma_deviation = np.sum(np.square((sigma.transpose() - sigma_mean).transpose()), axis=1)
+    seq_stderr = np.sqrt(r / (r -1) ** 3 * sigma_deviation)
+
+    return seq_std, seq_stderr
