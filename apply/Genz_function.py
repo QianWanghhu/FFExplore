@@ -5,7 +5,7 @@ import json
 import os
 import numpy as np
 import pandas as pd
-
+import time
 #sensitivity analysis and partial sorting 
 import pyapprox as pya
 from pyapprox.models import genz
@@ -30,13 +30,6 @@ def set_genz():
     return benchmark, num_nvars
 
 # Calculate the total effects of parameters in the Genz-function
-benchmark, num_nvars = set_genz()
-
-nvars = benchmark.variable.num_vars()
-order = 2
-interaction_terms = pya.compute_hyperbolic_indices(nvars, order)
-interaction_terms = interaction_terms[:, 
-    np.where(interaction_terms.max(axis=0)==1)[0]]
 ###===========================###=====================================###
 # # Test the effects of factor fixing using the original Genz-function
 # def fix_factor_genz(x_subset, y_subset, x_default, ind_fix):
@@ -137,13 +130,18 @@ def rank_parameters(sa_matrix, conf_level):
     return ranking_ci
 
 # call the function
-import time
+benchmark, num_nvars = set_genz()
+nvars = benchmark.variable.num_vars()
+order = 2
+interaction_terms = pya.compute_hyperbolic_indices(nvars, order)
+interaction_terms = interaction_terms[:, 
+    np.where(interaction_terms.max(axis=0)==1)[0]]
+
 time_start = time.time()
 total_effects_dict, error_list, samples = gaussian_process()
 print(f'Use {time.time() - time_start} seconds')
 
-conf_level = 0.95
-rank_groups = {}
+conf_level = 0.95; rank_groups = {}
 for key, value in total_effects_dict.items():
     try:
         ranking_ci[key] = rank_parameters(value.T, conf_level)
@@ -154,10 +152,8 @@ for key, value in total_effects_dict.items():
     rank_list = partial_rank(ranking_ci[key][0], ranking_ci[key][1])
     rank_groups[key] = {j: list(rank_list[j]) for j in range(len(rank_list))}
 
-
 file_path = f'../output/genz/'
 if not os.path.exists(file_path): os.mkdir(file_path)
-
 # save parameter rankings, parameter sensitivity indices, and independent random samples
 with open(f'{file_path}rankings.json', 'w') as fp: json.dump(rank_groups, fp, indent=2)
 
@@ -169,7 +165,8 @@ np.savetxt(f'{file_path}error_gp.txt', error_list)
 np.savetxt(f'{file_path}samples_gp.txt', samples)
 
 
-## test performances of the reduced model
+
+## ====================test performances of the reduced model================================##
 # Fix parameters
 samples_fix = np.copy(samples)
 samples_fix[-10:, :] = 0.5
