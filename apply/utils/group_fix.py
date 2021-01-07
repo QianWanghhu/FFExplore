@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import pearsonr, norm
 import pandas as pd
 from scipy.stats import sem
+import os
 
 def group_fix(ind_fix, y_true, results_fix,
             rand, pool_results, file_exist=False, boot=False):
@@ -29,9 +30,9 @@ def group_fix(ind_fix, y_true, results_fix,
         ppmc_lower, ppmc_upper= np.quantile(ppmc_bt, [0.025, 0.975])
         mae_lower, mae_upper = np.quantile(mae_bt, [0.025, 0.975])
     else:
-        var_lower, var_upper = var - np.std(var), var + np.std(var)
-        ppmc_lower, ppmc_upper= ppmc - np.std(ppmc), ppmc + np.std(ppmc)
-        mae_lower, mae_upper = mae - np.std(mae), mae + np.std(mae)
+        var_lower, var_upper = var - np.std(var_bt), var + np.std(var_bt)
+        ppmc_lower, ppmc_upper= ppmc - np.std(ppmc_bt), ppmc + np.std(ppmc_bt)
+        mae_lower, mae_upper = mae - np.std(mae_bt), mae + np.std(mae_bt)
 
     # update pool_results
     measure_list = [
@@ -149,3 +150,60 @@ def std_stderr(seq):
     seq_stderr = np.sqrt(r / (r -1) ** 3 * sigma_deviation)
 
     return seq_std, seq_stderr
+
+def loop_error_metrics(out_path, x_fix_set, x_default, nsubsets, r, len_params, 
+    samples, evaluate, boot, file_exists, **kwargs):
+# The loop of calculating error metrics 
+    if boot: nboot = kwargs['nboot']
+    save_file = kwargs['save_file']
+    try:
+        nstart = kwargs['nstart']
+    except KeyError:
+        nstart = 0
+    for ind_fix in x_fix_set:
+        print(ind_fix)
+        error_dict = {}; pool_res = {}
+        # loop to fix parameters and calculate the error metrics    
+        for i in range(r):
+            mae = {i: None for i in range(nsubsets)}
+            var, ppmc = dict(mae), dict(mae)
+            mae_upper, var_upper, ppmc_upper = dict(mae), dict(mae), dict(mae)
+            mae_lower, var_lower, ppmc_lower = dict(mae), dict(mae), dict(mae)
+            x_sample = samples[:, (i * len_params):(i + 1) * len_params]
+            y_true = evaluate(x_sample, kwargs['a'])
+            
+            # Loop of each subset 
+            for n in range(nstart, nsubsets):
+                y_subset = y_true[0:(n + 1)*10]
+                x_copy = np.copy(x_sample[0: (n + 1) * 10, :])
+                x_copy[:, ind_fix] = [x_default]
+                y_fix = evaluate_wrap(evaluate, x_copy, kwargs['a'])
+                y_true_ave = np.average(y_subset)
+                if boot:
+                    rand = np.random.randint(0, x_copy.shape[0], size = (nboot, x_copy.shape[0]))
+                else:
+                    rand = np.array([np.arange(0, x_copy.shape[0])]) 
+                error_temp, pool_res, _ = group_fix(ind_fix, y_subset, \
+                    y_fix, rand, pool_res, file_exists, boot)
+        
+                [mae[n], var[n], ppmc[n], mae_lower[n], var_lower[n], ppmc_lower[n], 
+                mae_upper[n],var_upper[n], ppmc_upper[n]] = error_temp
+
+            error_dict[f'replicate{i}'] = {'mae': mae, 'var': var, 'ppmc': ppmc,
+                            'mae_lower': mae_lower, 'var_lower': var_lower, 'ppmc_lower': ppmc_lower,
+                            'mae_upper': mae_upper, 'var_upper': var_upper, 'ppmc_upper': ppmc_upper}
+        # import pdb; pdb.set_trace()
+        if save_file:
+            # convert the result into dataframe
+            key_outer = list(error_dict.keys())
+            f_names = list(error_dict[key_outer[0]].keys())
+            len_fix = len(ind_fix)
+            fpath = f'{out_path}/fix_{len_fix}/'
+            if not os.path.exists(fpath): os.mkdir(fpath)
+            for key in key_outer:
+                # dict_measure = {key: error_dict[key][ele] for key in key_outer}
+                df = pd.DataFrame.from_dict(error_dict[key], orient='columns')
+                df.to_csv(f'{fpath}{key}.csv')
+            # End for
+        else:
+            return error_dict
