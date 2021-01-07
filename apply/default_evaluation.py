@@ -15,6 +15,7 @@ a, x, x_bounds, _, _, problem = set_sobol_g_func()
 
 # calculate results with fixed parameters
 defaults_list = np.append([0, 0.1, 0.2, 0.4, 0.5], np.round(np.linspace(0.21, 0.3, 10), 2))
+defaults_list.sort()
 # defaults_list = [0.1, 0.2]
 file_exist = False
 nstart = 2400
@@ -29,7 +30,7 @@ x_all = samples[:, 0:-1]
 y_true = samples[:, -1]  
 x_subset = x_all[:100]
 y_subset = y_true[:100]
-defaults_list.sort()
+
 
 for ind_fix in combs_fix:
     if os.path.exists(file_sample):
