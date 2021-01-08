@@ -6,7 +6,7 @@ import os
 from SALib.test_functions.Sobol_G import evaluate
 
 # import settings for Sobol G-function and returns necessary elements
-from utils.Sobol_G_setting import set_sobol_g_func
+from utils.test_function_setting import set_sobol_g_func
 from utils.partial_sort import to_df
 from utils.group_fix import group_fix, index_fix, results_exist, loop_error_metrics, stderr
 from utils.group_fix import evaluate_wrap
@@ -27,7 +27,7 @@ else:
     partial_order, x_morris = morris_ranking(cache_file)
     np.savetxt(outer_path + 'morris_sample.txt', x_morris)
 
-desti_folder = 'sobol_vertical'
+desti_folder = 'vertical'
 out_path = f'{outer_path}{desti_folder}/'
 if not os.path.exists(out_path): os.makedirs(out_path)
 
@@ -45,11 +45,11 @@ else:
     samples = sample_repli(800, len_params, metric_cache, split_style = 'vertical', 
         skip_numbers = 1000, num_replicates = r)
 
-nsubsets = int(samples.shape[0] / 10); nstart = 10; nboot=1
-boot = True
+nsubsets = int(samples.shape[0] / 10); nstart = 9; nboot=1
+boot = False
 
-# loop_error_metrics(out_path, x_fix_set, x_default, nsubsets, r, len_params, 
-#     samples, evaluate, boot, file_exists, a = a, nboot = nboot, save_file=True)
+loop_error_metrics(out_path, x_fix_set, x_default, nsubsets, r, len_params, 
+    samples, evaluate, boot, file_exists, a = a, nboot = nboot, save_file=True)
 
 # Calculate the standard error and mean
 out_path = f'{outer_path}{desti_folder}/'
@@ -61,7 +61,6 @@ if 'boot' in desti_folder:
     boot_process(out_path, col_names, nsubsets, r, save_file=True)
 else:
     replicates_process(out_path, col_names, nsubsets, r, save_file=True)
-
 
 # Default evaluation
 defaults_list = np.append([0, 0.1, 0.2, 0.4, 0.5], np.round(np.linspace(0.21, 0.3, 10), 2))
@@ -80,7 +79,7 @@ df = pd.DataFrame(data = np.zeros(shape=(num_defaults, len(METRIC_NAME))), index
     columns=METRIC_NAME)
 for i in range(num_defaults):
     replicate_collect  = np.array([])
-    out_path = f'{outer_path}sobol_vertical/{defaults_list[i]}/{num_fix[1]}/'
+    out_path = f'{outer_path}sobol_vertical/{defaults_list[i]}/{num_fix[0]}/'
     fps = os.listdir(out_path)
     for fp in fps:
         df_temp = pd.read_csv(out_path + fp, index_col = 'Unnamed: 0').dropna(axis=0)
@@ -94,5 +93,5 @@ for i in range(num_defaults):
             stderr(replicate_collect[:, jj].reshape(r, 1).transpose())
         df.loc[defaults_list[i], METRIC_NAME[jj+3]], df.loc[defaults_list[i], METRIC_NAME[jj + 6]] =\
             df.loc[defaults_list[i], METRIC_NAME[jj]] - std_temp, df.loc[defaults_list[i], METRIC_NAME[jj]] + std_temp
-df.to_csv(f'{outer_path}sobol_vertical/{num_fix[1]}.csv')
+df.to_csv(f'{outer_path}sobol_vertical/{num_fix[0]}.csv')
     
