@@ -76,8 +76,8 @@ with open(f'{file_path}rankings.json', 'w') as fp: json.dump(rank_groups, fp, in
 x_fix_set =[[k for k in range(i)] for i in range(1, num_nvars)]
 desti_folder = 'sobol_vertical'
 r = 10 # r is the number of repetitions
-
 # full_approx = approximate(train_samples, train_vals, 'gaussian_process', {'nu':np.inf}).approx
+metric_cache = f'{file_path}/metric_samples.txt'
 if os.path.exists(metric_cache): 
     samples = np.loadtxt(metric_cache)
 else:
@@ -100,13 +100,13 @@ else:
     replicates_process(out_path, col_names, nsubsets, r, save_file=True)
 
 ##====================test performances of the reduced model================================##
-metric_cache = f'{file_path}/metric_samples.txt'
 train_samples = np.loadtxt(f'{file_path}samples_gp.txt')
 train_vals = benchmark.fun(train_samples)
 samples_fix = np.copy(train_samples)
 samples_fix[-10:, :] = 0.5
 error_list = {'reduced':[], 'full': []}
-for ntrain in range(10*num_nvars, 1000+1):
+for ntrain in range(10*num_nvars, 1000+1, 50):
+    print(ntrain)
     # full-model
     x_subset = train_samples[:, 0:ntrain]
     validation_samples = samples_fix[:, -300:]
@@ -133,3 +133,6 @@ for ntrain in range(10*num_nvars, 1000+1):
 
     error_list['reduced'].append(reduced_error)
     error_list['full'].append(full_error)
+df = pd.DataFrame.from_dict(error_list);
+df.index = np.arange(10*num_nvars, 1000+1, 50)
+df.to_csv(file_path+'full_reduced_compare.csv')
