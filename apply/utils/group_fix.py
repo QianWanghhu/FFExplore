@@ -49,7 +49,6 @@ def group_fix(ind_fix, y_true, results_fix,
     return dict_return, pool_results, results_fix
 
 
-
 def index_fix(partial_result, ind, file_exist, ind_fix):
     if file_exist:
         try:
@@ -118,11 +117,12 @@ def pool_update(parms_fixed, measure_list, pool_results):
 
     return pool_results
 
-def evaluate_wrap(evaluate, x, a):
-    if a is None:
-        return evaluate(x)
-    else:
+def evaluate_wrap(evaluate, x, **kwargs):
+    if 'a' in list(kwargs.keys()): 
+        a = kwargs['a']
         return evaluate(x, a)
+    else:
+        return evaluate(x.T).flatten()
 
 
 def stderr(seq):
@@ -156,10 +156,12 @@ def loop_error_metrics(out_path, x_fix_set, x_default, nsubsets, r, len_params,
 # The loop of calculating error metrics 
     if boot: nboot = kwargs['nboot']
     save_file = kwargs['save_file']
+
     try:
         nstart = kwargs['nstart']
     except KeyError:
         nstart = 0
+
     for ind_fix in x_fix_set:
         print(ind_fix)
         error_dict = {}; pool_res = {}
@@ -170,14 +172,14 @@ def loop_error_metrics(out_path, x_fix_set, x_default, nsubsets, r, len_params,
             mae_upper, var_upper, ppmc_upper = dict(mae), dict(mae), dict(mae)
             mae_lower, var_lower, ppmc_lower = dict(mae), dict(mae), dict(mae)
             x_sample = samples[:, (i * len_params):(i + 1) * len_params]
-            y_true = evaluate(x_sample, kwargs['a'])
+            y_true = evaluate_wrap(evaluate, x_sample, **kwargs)
             
             # Loop of each subset 
             for n in range(nstart, nsubsets):
                 y_subset = y_true[0:(n + 1)*10]
                 x_copy = np.copy(x_sample[0: (n + 1) * 10, :])
                 x_copy[:, ind_fix] = [x_default]
-                y_fix = evaluate_wrap(evaluate, x_copy, kwargs['a'])
+                y_fix = evaluate_wrap(evaluate, x_copy, **kwargs)
                 y_true_ave = np.average(y_subset)
                 if boot:
                     rand = np.random.randint(0, x_copy.shape[0], size = (nboot, x_copy.shape[0]))
