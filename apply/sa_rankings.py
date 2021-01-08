@@ -14,7 +14,7 @@ from SALib.sample import latin as sample_latin
 from SALib.test_functions.Sobol_G import evaluate, total_sensitivity_index as total_sa
 
 # import settings for Sobol G-function and returns necessary elements
-from utils.Sobol_G_setting import set_sobol_g_func, add_dummy
+from utils.test_function_setting import set_sobol_g_func, add_dummy
 from utils.partial_sort import to_df, partial_rank
 from utils.group_fix import evaluate_wrap
 

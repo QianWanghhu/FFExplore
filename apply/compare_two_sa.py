@@ -10,7 +10,7 @@ from SALib.test_functions.Sobol_G import evaluate, total_sensitivity_index as to
 
 # import settings for Sobol G-function and returns necessary elements
 from utils.partial_sort import to_df
-from utils.Sobol_G_setting import set_sobol_g_func
+from utils.test_function_setting import set_sobol_g_func
 from utils.group_fix import group_fix, index_fix, results_exist
 from utils.group_fix import evaluate_wrap
 
