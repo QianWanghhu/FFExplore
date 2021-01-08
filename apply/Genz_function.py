@@ -74,11 +74,10 @@ with open(f'{file_path}rankings.json', 'w') as fp: json.dump(rank_groups, fp, in
 # Calculate the total effects of parameters in the Genz-function
 ###===========================###=====================================###
 x_fix_set =[[k for k in range(i)] for i in range(1, num_nvars)]
-# get input samples
 desti_folder = 'sobol_vertical'
-metric_cache = f'{file_path}/metric_samples.txt'
 r = 10 # r is the number of repetitions
 
+# full_approx = approximate(train_samples, train_vals, 'gaussian_process', {'nu':np.inf}).approx
 if os.path.exists(metric_cache): 
     samples = np.loadtxt(metric_cache)
 else:
@@ -101,30 +100,36 @@ else:
     replicates_process(out_path, col_names, nsubsets, r, save_file=True)
 
 ##====================test performances of the reduced model================================##
-samples_fix = np.copy(samples)
+metric_cache = f'{file_path}/metric_samples.txt'
+train_samples = np.loadtxt(f'{file_path}samples_gp.txt')
+train_vals = benchmark.fun(train_samples)
+samples_fix = np.copy(train_samples)
 samples_fix[-10:, :] = 0.5
+error_list = {'reduced':[], 'full': []}
+for ntrain in range(10*num_nvars, 1000+1):
+    # full-model
+    x_subset = train_samples[:, 0:ntrain]
+    validation_samples = samples_fix[:, -300:]
+    y_subset = benchmark.fun(x_subset)
+    full_approx = approximate(x_subset, y_subset, 'gaussian_process', {'nu':np.inf}).approx
 
-# full-model
-train_samples = samples[:, 0:250]
-validation_samples = samples_fix[:, -300:]
-train_vals = benchmark.fun(train_samples)
+    # reduced_model
+    x_subset_fix = samples_fix[:, 0:ntrain]
+    y_subset_fix = benchmark.fun(x_subset_fix)
 
-full_approx = approximate(train_samples, train_vals, 'gaussian_process', {'nu':np.inf}).approx
+    reduced_approx = approximate(x_subset_fix[:-9, :], y_subset_fix, 'gaussian_process', {'nu':np.inf}).approx
 
-# reduced_model
-train_samples = samples_fix[:, 0:250]
-train_vals = benchmark.fun(train_samples)
+    # compare the errors
+    validation_vals = benchmark.fun(validation_samples).flatten()
+    full_approx_vals = full_approx(validation_samples).flatten()
+            
+    full_error = np.linalg.norm(full_approx_vals - validation_vals, axis=0) 
+    full_error /= np.linalg.norm(validation_vals, axis=0)
 
-reduced_approx = approximate(train_samples[:-9, :], train_vals, 'gaussian_process', {'nu':np.inf}).approx
+    reduced_approx_vals = reduced_approx(validation_samples[:-9, :]).flatten()
+            
+    reduced_error = np.linalg.norm(reduced_approx_vals - validation_vals, axis=0) 
+    reduced_error /= np.linalg.norm(validation_vals, axis=0)
 
-# compare the errors
-validation_vals = benchmark.fun(validation_samples).flatten()
-full_approx_vals = full_approx(validation_samples).flatten()
-        
-full_error = np.linalg.norm(full_approx_vals - validation_vals, axis=0) 
-full_error /= np.linalg.norm(validation_vals, axis=0)
-
-reduced_approx_vals = reduced_approx(validation_samples[:-9, :]).flatten()
-        
-reduced_error = np.linalg.norm(reduced_approx_vals - validation_vals, axis=0) 
-reduced_error /= np.linalg.norm(validation_vals, axis=0)
+    error_list['reduced'].append(reduced_error)
+    error_list['full'].append(full_error)
