@@ -76,18 +76,20 @@ with open(f'{file_path}rankings.json', 'w') as fp: json.dump(rank_groups, fp, in
 x_fix_set =[[k for k in range(i)] for i in range(1, num_nvars)]
 desti_folder = 'sobol_vertical'
 r = 10 # r is the number of repetitions
-# full_approx = approximate(train_samples, train_vals, 'gaussian_process', {'nu':np.inf}).approx
-metric_cache = f'{file_path}/metric_samples.txt'
+train_samples = np.loadtxt(f'{file_path}samples_gp.txt')[:, 0:900]
+train_vals = benchmark.fun(train_samples)
+full_approx = approximate(train_samples, train_vals, 'gaussian_process', {'nu':2.5}).approx
+metric_cache = f'{file_path}/metric_samples_large.txt'
 if os.path.exists(metric_cache): 
     samples = np.loadtxt(metric_cache)
 else:
-    samples = sample_repli(800, num_nvars, metric_cache, split_style = 'vertical', 
+    samples = sample_repli(1000, num_nvars, metric_cache, split_style = 'vertical', 
         skip_numbers = 1000, num_replicates = r)
 
 x_default = 0.5; boot = False; nsubsets = int(samples.shape[0] / 10)
 file_exists = True
-loop_error_metrics(file_path, x_fix_set, x_default, nsubsets, r, num_nvars, 
-    samples, benchmark.fun, boot, file_exists, save_file=True)
+loop_error_metrics(file_path, x_fix_set[8:10], x_default, nsubsets, r, num_nvars, 
+    samples, full_approx, boot, file_exists, save_file=True)
 
 # Calculate the standard error and mean
 out_path = f'{file_path}/'
@@ -103,7 +105,7 @@ else:
 train_samples = np.loadtxt(f'{file_path}samples_gp.txt')
 train_vals = benchmark.fun(train_samples)
 samples_fix = np.copy(train_samples)
-samples_fix[-10:, :] = 0.5
+samples_fix[-11:, :] = 0.5
 error_list = {'reduced':[], 'full': []}
 for ntrain in range(10*num_nvars, 1000+1, 50):
     print(ntrain)
@@ -111,7 +113,7 @@ for ntrain in range(10*num_nvars, 1000+1, 50):
     x_subset = train_samples[:, 0:ntrain]
     validation_samples = samples_fix[:, -300:]
     y_subset = benchmark.fun(x_subset)
-    full_approx = approximate(x_subset, y_subset, 'gaussian_process', {'nu':np.inf}).approx
+    # full_approx = approximate(x_subset, y_subset, 'gaussian_process', {'nu':np.inf}).approx
 
     # reduced_model
     x_subset_fix = samples_fix[:, 0:ntrain]
@@ -121,10 +123,10 @@ for ntrain in range(10*num_nvars, 1000+1, 50):
 
     # compare the errors
     validation_vals = benchmark.fun(validation_samples).flatten()
-    full_approx_vals = full_approx(validation_samples).flatten()
+    # full_approx_vals = full_approx(validation_samples).flatten()
             
-    full_error = np.linalg.norm(full_approx_vals - validation_vals, axis=0) 
-    full_error /= np.linalg.norm(validation_vals, axis=0)
+    # full_error = np.linalg.norm(full_approx_vals - validation_vals, axis=0) 
+    # full_error /= np.linalg.norm(validation_vals, axis=0)
 
     reduced_approx_vals = reduced_approx(validation_samples[:-9, :]).flatten()
             
@@ -132,7 +134,7 @@ for ntrain in range(10*num_nvars, 1000+1, 50):
     reduced_error /= np.linalg.norm(validation_vals, axis=0)
 
     error_list['reduced'].append(reduced_error)
-    error_list['full'].append(full_error)
-df = pd.DataFrame.from_dict(error_list);
+    # error_list['full'].append(full_error)
+df = pd.DataFrame.from_dict(error_list['reduced']);
 df.index = np.arange(10*num_nvars, 1000+1, 50)
-df.to_csv(file_path+'full_reduced_compare.csv')
+df.to_csv(file_path+'reduced_compare.csv')
