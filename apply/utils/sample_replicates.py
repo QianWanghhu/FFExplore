@@ -85,3 +85,11 @@ def boot_process(out_path, col_names, nsubsets, r, save_file=True):
             df_std.to_csv(f'{out_path}{fp}/std_estimation.csv')
         else:
             print("No returns or results saved.")
+
+def return_metric_samples(metric_cache, size, len_params, split_style, skip_numbers, num_replicates):
+    if os.path.exists(metric_cache): 
+        samples = np.loadtxt(metric_cache)
+    else:
+        samples = sample_repli(800, len_params, metric_cache, split_style = 'vertical', 
+            skip_numbers = 1000, num_replicates = r)
+    return samples
