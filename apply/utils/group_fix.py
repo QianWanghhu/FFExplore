@@ -21,18 +21,18 @@ def group_fix(ind_fix, y_true, results_fix,
         var_bt[ii] = results_fix_resample.var() / y_true_var
         # import pdb; pdb.set_trace()
         ppmc_bt[ii] = pearsonr(results_fix_resample, y_true_resample)[0]
-        mae_bt[ii] = np.abs((results_fix_resample - y_true_resample) / y_true_resample).mean(axis=0) # / y_true_ave
+        mae_bt[ii] = np.abs((results_fix_resample - y_true_resample)).mean(axis=0) / y_true_ave # / y_true_resample
     # End for
     
     mae, var, ppmc = mae_bt.mean(), var_bt.mean(), ppmc_bt.mean()
-    if not boot:
-        var_lower, var_upper = np.quantile(var_bt, [0.025, 0.975])
-        ppmc_lower, ppmc_upper= np.quantile(ppmc_bt, [0.025, 0.975])
-        mae_lower, mae_upper = np.quantile(mae_bt, [0.025, 0.975])
-    else:
-        var_lower, var_upper = var - np.std(var_bt), var + np.std(var_bt)
-        ppmc_lower, ppmc_upper= ppmc - np.std(ppmc_bt), ppmc + np.std(ppmc_bt)
-        mae_lower, mae_upper = mae - np.std(mae_bt), mae + np.std(mae_bt)
+    # if not boot:
+    var_lower, var_upper = np.quantile(var_bt, [0.025, 0.975])
+    ppmc_lower, ppmc_upper= np.quantile(ppmc_bt, [0.025, 0.975])
+    mae_lower, mae_upper = np.quantile(mae_bt, [0.025, 0.975])
+    # else:
+    #     var_lower, var_upper = var - np.std(var_bt), var + np.std(var_bt)
+    #     ppmc_lower, ppmc_upper= ppmc - np.std(ppmc_bt), ppmc + np.std(ppmc_bt)
+    #     mae_lower, mae_upper = mae - np.std(mae_bt), mae + np.std(mae_bt)
 
     # update pool_results
     measure_list = [
@@ -194,18 +194,25 @@ def loop_error_metrics(out_path, x_fix_set, x_default, nsubsets, r, len_params,
             error_dict[f'replicate{i}'] = {'mae': mae, 'var': var, 'ppmc': ppmc,
                             'mae_lower': mae_lower, 'var_lower': var_lower, 'ppmc_lower': ppmc_lower,
                             'mae_upper': mae_upper, 'var_upper': var_upper, 'ppmc_upper': ppmc_upper}
-        # import pdb; pdb.set_trace()
         if save_file:
             # convert the result into dataframe
-            key_outer = list(error_dict.keys())
-            f_names = list(error_dict[key_outer[0]].keys())
-            len_fix = len(ind_fix)
-            fpath = f'{out_path}/fix_{len_fix}/'
-            if not os.path.exists(fpath): os.mkdir(fpath)
-            for key in key_outer:
-                # dict_measure = {key: error_dict[key][ele] for key in key_outer}
-                df = pd.DataFrame.from_dict(error_dict[key], orient='columns')
-                df.to_csv(f'{fpath}{key}.csv')
+            fpath = f'{out_path}/fix_{len(ind_fix)}/'
+            save_group_fix(error_dict, fpath)
             # End for
         else:
             return error_dict
+
+def save_group_fix(error_dict, fpath):
+    """
+    Save the results from loop_error_metrics if required.
+    Parameters:
+    error_dict: dict, error measures calculated
+    fpath: str, file path to save results
+    """
+    key_outer = list(error_dict.keys())
+    f_names = list(error_dict[key_outer[0]].keys())
+    if not os.path.exists(fpath): os.mkdir(fpath)
+    for key in key_outer:
+        # dict_measure = {key: error_dict[key][ele] for key in key_outer}
+        df = pd.DataFrame.from_dict(error_dict[key], orient='columns')
+        df.to_csv(f'{fpath}{key}.csv')            
