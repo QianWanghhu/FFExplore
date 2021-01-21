@@ -8,6 +8,7 @@ from pyapprox.sensitivity_analysis import sampling_based_sobol_indices_from_gaus
 from pyapprox.benchmarks import sensitivity_benchmarks
 from pyapprox.benchmarks.benchmarks import setup_benchmark
 from pyapprox.sensitivity_analysis import sampling_based_sobol_indices
+import time
 
 # define efficients a and x variables according to Sheikholeslami (2019)
 # start
@@ -118,3 +119,27 @@ def gaussian_process(benchmark, interaction_terms, num_samples,
         total_effects_dict[f'nsamples_{ntrains}'] = all_total_effects    
 
     return total_effects_dict, error_list, samples       
+
+def l2_compute(gp, validation_samples, validation_vals):
+    full_approx_vals = gp(validation_samples).flatten()
+    full_error = np.linalg.norm(full_approx_vals - validation_vals, axis=0) 
+    full_error /= np.linalg.norm(validation_vals, axis=0)
+    return full_error
+
+def gp_sa(benchmark, num_nvars, num_samples, nvalidation, nsamples, **kwargs):
+    """
+    nsamples: int, sample size used for Sobol' analysis
+    """
+    nvars = benchmark.variable.num_vars()
+    nstart, nstop, nstep = kwargs['nstart'], kwargs['stop'], kwargs['nstep']
+    order = 2
+    interaction_terms = pya.compute_hyperbolic_indices(nvars, order)
+    interaction_terms = interaction_terms[:, 
+        np.where(interaction_terms.max(axis=0)==1)[0]]
+
+    time_start = time.time()
+    total_effects_dict, error_list, samples = gaussian_process(benchmark, interaction_terms, 
+        num_samples, nvalidation, num_nvars, nsamples, 
+            nstart, nstop, nstep)
+    print(f'Use {time.time() - time_start} seconds')                
+    return total_effects_dict, error_list, samples
