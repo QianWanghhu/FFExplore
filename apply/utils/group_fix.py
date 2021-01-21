@@ -21,9 +21,9 @@ def group_fix(ind_fix, y_true, results_fix,
         var_bt[ii] = results_fix_resample.var() / y_true_var
         # import pdb; pdb.set_trace()
         ppmc_bt[ii] = pearsonr(results_fix_resample, y_true_resample)[0]
-        mae_bt[ii] = np.abs((results_fix_resample - y_true_resample)).mean(axis=0) / y_true_ave # / y_true_resample
+        mae_bt[ii] = np.abs((results_fix_resample - y_true_resample) / y_true_resample).mean(axis=0) #/ y_true_ave
     # End for
-    
+    # import pdb; pdb.set_trace()
     mae, var, ppmc = mae_bt.mean(), var_bt.mean(), ppmc_bt.mean()
     # if not boot:
     var_lower, var_upper = np.quantile(var_bt, [0.025, 0.975])
@@ -161,7 +161,7 @@ def loop_error_metrics(out_path, x_fix_set, x_default, nsubsets, r, len_params,
         nstart = kwargs['nstart']
     except KeyError:
         nstart = 0
-
+    nstep = kwargs['nstep']
     for ind_fix in x_fix_set:
         print(ind_fix)
         error_dict = {}; pool_res = {}
@@ -176,11 +176,12 @@ def loop_error_metrics(out_path, x_fix_set, x_default, nsubsets, r, len_params,
             
             # Loop of each subset 
             for n in range(nstart, nsubsets):
-                y_subset = y_true[0:(n + 1)*10]
-                x_copy = np.copy(x_sample[0: (n + 1) * 10, :])
+                y_subset = y_true[0:(n + 1)*nstep]
+                x_copy = np.copy(x_sample[0: (n + 1) * nstep, :])
                 x_copy[:, ind_fix] = [x_default]
                 y_fix = evaluate_wrap(evaluate, x_copy, **kwargs)
                 y_true_ave = np.average(y_subset)
+                
                 if boot:
                     rand = np.random.randint(0, x_copy.shape[0], size = (nboot, x_copy.shape[0]))
                 else:
