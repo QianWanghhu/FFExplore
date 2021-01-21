@@ -86,3 +86,16 @@ def compute_bootstrap_ranks(sa_matrix, conf_level):
     ranking_ci = np.quantile(rankings,[(1-conf_level)/2, 0.5 + conf_level/2], axis=1)
 
     return ranking_ci
+
+def gp_ranking(total_effects_dict, conf_level):
+    rank_groups = {}
+    for key, value in total_effects_dict.items():
+        try:
+            ranking_ci[key] = compute_bootstrap_ranks(value.T, conf_level)
+        except NameError:
+            ranking_ci = {}; rank_groups = {}
+            ranking_ci[key] = compute_bootstrap_ranks(value.T, conf_level)
+
+        rank_list = partial_rank(ranking_ci[key][0], ranking_ci[key][1])
+        rank_groups[key] = {j: list(rank_list[j]) for j in range(len(rank_list))}
+    return rank_groups
