@@ -15,3 +15,5 @@ salib-prod/
 salib-dummy/
 
 *.cfg
+
+output/
