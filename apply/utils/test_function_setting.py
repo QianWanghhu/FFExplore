@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from pyapprox.benchmarks.benchmarks import setup_benchmark
 import pyapprox as pya
 from pyapprox.models import genz
@@ -9,6 +10,8 @@ from pyapprox.benchmarks import sensitivity_benchmarks
 from pyapprox.benchmarks.benchmarks import setup_benchmark
 from pyapprox.sensitivity_analysis import sampling_based_sobol_indices
 import time
+
+from .partial_sort import gp_ranking
 
 # define efficients a and x variables according to Sheikholeslami (2019)
 # start
@@ -68,7 +71,7 @@ def set_genz():
     # a = np.array([0.1, 0.1, 0.2, 0.3, 0.5, 1])
     # a = np.array([0, 0.0001, 0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 0.9, 1, 1.5, 2, 2, 2.5, 3])
     num_nvars = a.shape[0]
-    u = np.random.rand(num_nvars)
+    u = np.arange(1, 105, 7)
     cw = np.array([a, u])
     benchmark = setup_benchmark('genz', nvars=num_nvars, test_name='oscillatory', coefficients = cw)
     return benchmark, num_nvars
@@ -104,12 +107,8 @@ def gaussian_process(benchmark, interaction_terms, num_samples,
             train_vals = vals_step
 
         approx = approximate(train_samples, train_vals, 'gaussian_process', {'nu':np.inf}).approx
-        approx_vals = approx(validation_samples).flatten()
-        
-        error = np.linalg.norm(approx_vals.flatten() - validation_vals.flatten()) 
-        error /= np.linalg.norm(validation_vals)
+        error = l2_compute(approx, validation_samples, validation_vals)
         error_list.append(error)
-
         mean_sobol_indices, mean_total_effects, mean_variance, \
                 std_sobol_indices, std_total_effects, std_variance, all_total_effects = \
                     sampling_based_sobol_indices_from_gaussian_process(
@@ -136,10 +135,37 @@ def gp_sa(benchmark, num_nvars, num_samples, nvalidation, nsamples, **kwargs):
     interaction_terms = pya.compute_hyperbolic_indices(nvars, order)
     interaction_terms = interaction_terms[:, 
         np.where(interaction_terms.max(axis=0)==1)[0]]
-
     time_start = time.time()
     total_effects_dict, error_list, samples = gaussian_process(benchmark, interaction_terms, 
         num_samples, nvalidation, num_nvars, nsamples, 
             nstart, nstop, nstep)
     print(f'Use {time.time() - time_start} seconds')                
     return total_effects_dict, error_list, samples
+
+
+def bootstrap_gp(samples, values, validation_samples, validation_vals, ngp):
+    gp_list = []; error_list = []
+    rand = np.random.randint(0, samples.shape[1], size = (ngp, samples.shape[1]))
+    # import pdb; pdb.set_trace()
+    for ii in rand:
+        full_approx = approximate(samples[:, ii], values[ii], 'gaussian_process', 
+            {'nu':np.inf}).approx
+        gp_list.append(full_approx)
+        # import pdb; pdb.set_trace()
+        error_list.append(l2_compute(full_approx, validation_samples, validation_vals))
+
+    return gp_list, error_list
+
+
+# Rank parameters according to the sensitivity indices
+def gp_partial_ranking(benchmark, num_nvars, conf_level, file_path):
+
+    total_effects_dict, error_list, samples = gp_sa(benchmark, num_nvars, 
+        num_samples=1500, nvalidation=300, nsamples=100, nstart=(10 * num_nvars),
+            nstop=200, nstep=10)
+    rank_groups = gp_ranking(total_effects_dict, conf_level)
+    # Save results    
+    for key, value in total_effects_dict.items():
+        total_effects_df = pd.DataFrame(data = value, columns=[f'x{i+1}' for i in range(num_nvars)])
+        total_effects_df.to_csv(f'{file_path}{key}_st.csv')
+    return error_list, samples, rank_groups
