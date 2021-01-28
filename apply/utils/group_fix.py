@@ -11,7 +11,6 @@ def group_fix(ind_fix, y_true, results_fix,
     Nresample = rand.shape[0]
     var_bt,  ppmc_bt,  mae_bt = np.zeros(Nresample), np.zeros(Nresample), np.zeros(Nresample)
     assert isinstance(ind_fix, list), 'ind_fix should be a list'
-
     for ii in range(Nresample):            
         I = rand[ii]
         y_true_resample = y_true[I]
@@ -19,27 +18,20 @@ def group_fix(ind_fix, y_true, results_fix,
         y_true_ave = y_true_resample.mean()
         y_true_var = y_true_resample.var()
         var_bt[ii] = results_fix_resample.var() / y_true_var
-        # import pdb; pdb.set_trace()
+
         ppmc_bt[ii] = pearsonr(results_fix_resample, y_true_resample)[0]
         mae_bt[ii] = np.abs((results_fix_resample - y_true_resample) / y_true_resample).mean(axis=0) #/ y_true_ave
     # End for
-    # import pdb; pdb.set_trace()
+
     mae, var, ppmc = mae_bt.mean(), var_bt.mean(), ppmc_bt.mean()
-    # if not boot:
     var_lower, var_upper = np.quantile(var_bt, [0.025, 0.975])
     ppmc_lower, ppmc_upper= np.quantile(ppmc_bt, [0.025, 0.975])
     mae_lower, mae_upper = np.quantile(mae_bt, [0.025, 0.975])
-    # else:
-    #     var_lower, var_upper = var - np.std(var_bt), var + np.std(var_bt)
-    #     ppmc_lower, ppmc_upper= ppmc - np.std(ppmc_bt), ppmc + np.std(ppmc_bt)
-    #     mae_lower, mae_upper = mae - np.std(mae_bt), mae + np.std(mae_bt)
-
     # update pool_results
     measure_list = [
                     mae, var, ppmc, mae_lower,  var_lower, 
                     ppmc_lower, mae_upper, var_upper, ppmc_upper,
                     ]
-
     pool_results = pool_update(ind_fix, measure_list, pool_results)
     # End if
 # End for()
