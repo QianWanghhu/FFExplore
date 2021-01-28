@@ -34,45 +34,47 @@ x_fix_set = [[i for i in range(4, 21)], [i for i in range(8, 21)],
 x_default = 0.25
 
 # get input samples
-r_range = [*np.arange(10, 100, 10), *np.arange(100, 1001, 100)]
+# r_range = [*np.arange(10, 100, 10), *np.arange(100, 1001, 100)]
+r_range = [1]
 for r in r_range:
     print(f'--------------------- Replicate = {r}------------------------')
     # r = 10 # r is the number of repetitions
-    desti_folder = ['bootstrap', 'vertical', 'horizontal']
+    desti_folder = ['bootstrap_mc', 'vertical', 'horizontal']
     out_path  = [f'{outer_path}{f}/r{r}/' for f in desti_folder]
     for f in out_path: 
         if not os.path.exists(f): os.makedirs(f)
     
-    split_style = desti_folder[1]; size = 1000; skip_numbers = 1000; 
-    metric_cache = f'{out_path[0]}metric_samples.txt'
-    samples_vertical = return_metric_samples(metric_cache, size, len_params, split_style, skip_numbers, r)
-    metric_cache = f'{out_path[1]}metric_samples.txt'
-    samples_horizontal = return_metric_samples(metric_cache, size, len_params, desti_folder[2], skip_numbers, r)
+    # split_style = desti_folder[1]; size = 1000; skip_numbers = 1000; 
+    # metric_cache = f'{out_path[0]}metric_samples.txt'
+    # samples_vertical = return_metric_samples(metric_cache, size, len_params, split_style, skip_numbers, r)
+    # metric_cache = f'{out_path[1]}metric_samples.txt'
+    # samples_horizontal = return_metric_samples(metric_cache, size, len_params, desti_folder[2], skip_numbers, r)
 
     # calculation with bootstrap
     boot = True
-    samples_boot = np.vstack(np.hsplit(samples_vertical, r))
-    nstep = int(r * 10)
+    # samples_boot = np.vstack(np.hsplit(samples_vertical, r))
+    samples_boot = np.random.rand(10000, len_params)
+    nstep = int(r * 100)
     nsubsets = int(samples_boot.shape[0] / nstep); nstart = 0; nboot=1000
     loop_error_metrics(out_path[0], x_fix_set, x_default, nsubsets, 1, len_params, 
         samples_boot, evaluate, boot, file_exists, a = a, nboot = nboot, save_file=True, nstep = nstep)
 
-    # calculation with replicate sampling
-    boot = False
-    nstep = 10
-    nsubsets = int(samples_vertical.shape[0] / 10); nstart = 0; nboot=1
-    loop_error_metrics(out_path[1], x_fix_set, x_default, nsubsets, r, len_params, 
-        samples_vertical, evaluate, boot, file_exists, a = a, nboot = nboot, save_file=True, nstep=nstep)
+    # # calculation with replicate sampling
+    # boot = False
+    # nstep = 10
+    # nsubsets = int(samples_vertical.shape[0] / 10); nstart = 0; nboot=1
+    # loop_error_metrics(out_path[1], x_fix_set, x_default, nsubsets, r, len_params, 
+    #     samples_vertical, evaluate, boot, file_exists, a = a, nboot = nboot, save_file=True, nstep=nstep)
 
-    loop_error_metrics(out_path[2], x_fix_set, x_default, nsubsets, r, len_params, 
-        samples_horizontal, evaluate, boot, file_exists, a = a, nboot = nboot, save_file=True, nstep=nstep)
+    # loop_error_metrics(out_path[2], x_fix_set, x_default, nsubsets, r, len_params, 
+    #     samples_horizontal, evaluate, boot, file_exists, a = a, nboot = nboot, save_file=True, nstep=nstep)
 
     # Calculate the standard error and mean
-    for f in out_path[1:]:
-        err_metrics = ['mae', 'var', 'ppmc']
-        col_names = [i + '_mean' for i in err_metrics]
-        for i in err_metrics: col_names.append(i + '_std')
-        replicates_process(f, col_names, nsubsets, r, save_file=True)
+    # for f in out_path[1:]:
+    #     err_metrics = ['mae', 'var', 'ppmc']
+    #     col_names = [i + '_mean' for i in err_metrics]
+    #     for i in err_metrics: col_names.append(i + '_std')
+    #     replicates_process(f, col_names, nsubsets, r, save_file=True)
 
 ##TODO clean up the following
 # Default evaluation
