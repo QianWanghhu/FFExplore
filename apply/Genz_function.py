@@ -3,15 +3,9 @@ import json
 import os
 import numpy as np
 import pandas as pd
-import time
-from toposort import toposort, toposort_flatten
 #sensitivity analysis and partial sorting 
 import pyapprox as pya
-from pyapprox.models import genz
 from pyapprox.approximate import approximate, compute_l2_error
-from pyapprox.sensitivity_analysis import sampling_based_sobol_indices_from_gaussian_process,\
-    sampling_based_sobol_indices
-from pyapprox.benchmarks import sensitivity_benchmarks
 from pyapprox.benchmarks.benchmarks import setup_benchmark
 # import settings for Sobol G-function and returns necessary elements
 from utils.group_fix import loop_error_metrics, group_fix
@@ -60,7 +54,7 @@ else:
 num_interp = 100
 rand = np.array([np.arange(samples.shape[0])])
 stats_dict = {}
-for num_fix in [0, 8, 9, 10, 11]:
+for num_fix in [10, 11]:
     print(f'---------------FIX {num_fix}----------------')
     k = 0
     for ii in range(r):
