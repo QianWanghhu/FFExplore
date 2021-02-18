@@ -4,6 +4,11 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import re
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
+                               AutoMinorLocator)
 
 def bg_color(dataframe, values, colors, backg_color=True):
     """
@@ -52,3 +57,33 @@ def show_cells(dataframe):
         k += 1
 
     return ['color: white' if v else '' for v in tf]
+
+
+def match_ci_bounds(data, metric):
+    cols = data.columns
+    if (metric + '_std') in cols:
+        lower = data.loc[:, f'{metric}_mean'] - data.loc[:, f'{metric}_std']
+        upper = data.loc[:, f'{metric}_mean'] + data.loc[:, f'{metric}_std']
+    elif (metric + '_lower') in cols:
+        lower = data.loc[:, f'{metric}_lower']
+        upper = data.loc[:, f'{metric}_upper']
+    else:
+        raise AssertionError('Cannot locate the CIs of the metric')
+    return lower, upper
+
+def plot_metric_sampling(df_plot, fix_lists, metric, mean_lab, xlab, ylab, xtick_locator, 
+    legd_loc, fs, color, lgd, ax=None, **kwags):
+
+    lower, upper = match_ci_bounds(df_plot, metric)
+    ax = df_plot.loc[:, mean_lab].plot(**kwags, ax=ax, color= color)
+    ax.scatter(df_plot.index, lower, marker = 'd', color= color)
+    ax.scatter(df_plot.index, upper, marker = 'd', color=color)
+    ax.vlines(df_plot.index, lower, upper, linestyle = '--', color=color)
+    ax.set_xlabel(xlab, fontsize=fs);
+    ax.set_ylabel(ylab, fontsize = fs);
+    # ax.set_ylim(0.8, 1.2)
+    ax.xaxis.set_major_locator(MultipleLocator(xtick_locator))
+    plt.setp(ax.get_xticklabels(), fontsize=fs)
+    plt.setp(ax.get_yticklabels(), fontsize=fs)
+    ax.legend(lgd, title='Number of factors fixed', fontsize = fs, ncol=2, loc=legd_loc)#loc='upper right'bbox_to_anchor=(0.65, 0.15)
+    return ax
