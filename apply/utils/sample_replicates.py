@@ -90,6 +90,6 @@ def return_metric_samples(metric_cache, size, len_params, split_style, skip_numb
     if os.path.exists(metric_cache): 
         samples = np.loadtxt(metric_cache)
     else:
-        samples = sample_repli(800, len_params, metric_cache, split_style = 'vertical', 
-            skip_numbers = 1000, num_replicates = num_replicates)
+        samples = sample_repli(size, len_params, metric_cache, split_style = 'vertical', 
+            skip_numbers=skip_numbers, num_replicates = num_replicates)
     return samples
