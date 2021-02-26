@@ -24,9 +24,14 @@ def group_fix(ind_fix, y_true, results_fix,
     # End for
 
     mae, var, ppmc = mae_bt.mean(), var_bt.mean(), ppmc_bt.mean()
-    var_lower, var_upper = np.quantile(var_bt, [0.025, 0.975])
-    ppmc_lower, ppmc_upper= np.quantile(ppmc_bt, [0.025, 0.975])
-    mae_lower, mae_upper = np.quantile(mae_bt, [0.025, 0.975])
+    mae_std, var_std, ppmc_std = mae_bt.std(), var_bt.std(), ppmc_bt.std()
+    # var_lower, var_upper = np.quantile(var_bt, [0.025, 0.975])
+    # ppmc_lower, ppmc_upper= np.quantile(ppmc_bt, [0.025, 0.975])
+    # mae_lower, mae_upper = np.quantile(mae_bt, [0.025, 0.975])
+    
+    mae_lower, mae_upper = mae - mae_std, mae + mae_std
+    ppmc_lower, ppmc_upper= ppmc - ppmc_std, ppmc + ppmc_std
+    var_lower, var_upper = var - var_std, var + var_std
     # update pool_results
     measure_list = [
                     mae, var, ppmc, mae_lower,  var_lower, 
