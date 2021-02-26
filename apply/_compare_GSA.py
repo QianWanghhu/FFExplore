@@ -16,7 +16,7 @@ from utils.group_fix import evaluate_wrap
 
 from settings import MORRIS_DATA_DIR, SOBOL_DATA_DIR
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-cache_file = [f'../output/reuse_sample/morris/morris_8_123.json', f'../output/reuse_sample/sobol/sobol_123.json' ]
+cache_file = [f'../output/adaptive_replicate/morris/morris_lelvel4.json', f'../output/adaptive_replicate/sobol/sobol.json' ]
 file_exists = True
 pool_res = {}; x_default = 0.25
 
