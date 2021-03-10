@@ -20,6 +20,7 @@ def group_fix(ind_fix, y_true, results_fix,
         var_bt[ii] = results_fix_resample.var() / y_true_var
 
         ppmc_bt[ii] = pearsonr(results_fix_resample, y_true_resample)[0]
+        
         mae_bt[ii] = np.abs((results_fix_resample - y_true_resample) / y_true_resample).mean(axis=0) #/ y_true_ave
     # End for
 
