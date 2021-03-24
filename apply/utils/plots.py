@@ -72,20 +72,22 @@ def match_ci_bounds(data, metric):
     return lower, upper
 
 def plot_metric_sampling(df_plot, fix_lists, metric, mean_lab, xlab, ylab, xtick_locator, 
-    fs, color, lgd, ax=None, legd_loc=None, legd_bbox=None, alpha=None, **kwags):
+    fs, color, lgd=None, ax=None, legd_loc=None, legd_bbox=None, alpha=None, **kwags):
     lower, upper = match_ci_bounds(df_plot, metric)
     ax = df_plot.loc[:, mean_lab].plot(**kwags, ax=ax, color= color)
     ax.scatter(df_plot.index, lower, marker = 'd', color= color, alpha=alpha)
     ax.scatter(df_plot.index, upper, marker = 'd', color=color, alpha=alpha)
     ax.vlines(df_plot.index, lower, upper, linestyle = '--', color=color, alpha=alpha)
-    ax.set_xlabel(xlab, fontsize=fs);
+    ax.set_xlabel(xlab, fontsize = fs);
     ax.set_ylabel(ylab, fontsize = fs);
     # ax.set_ylim(0.8, 1.2)
     ax.xaxis.set_major_locator(MultipleLocator(xtick_locator))
     plt.setp(ax.get_xticklabels(), fontsize=fs)
     plt.setp(ax.get_yticklabels(), fontsize=fs)
-    if legd_loc==None:
-        ax.legend(lgd, title='Number of factors fixed', fontsize = fs, ncol=2, bbox_to_anchor=legd_bbox)
-    else:
-        ax.legend(lgd, title='Number of factors fixed', fontsize = fs, ncol=2, loc=legd_loc)#loc='upper right'bbox_to_anchor=(0.65, 0.15)
+    if not (lgd==None):
+        if legd_loc==None:
+            leg = ax.legend(lgd, fontsize = fs, ncol=2, bbox_to_anchor=legd_bbox)
+        else:
+            leg = ax.legend(lgd, fontsize = fs, ncol=2, loc=legd_loc)#loc='upper right'bbox_to_anchor=(0.65, 0.15)
+        leg.set_title('Number of factors fixed',prop={'size':fs})
     return ax
