@@ -22,7 +22,7 @@ def morris_ranking(cache_file):
         partial_order = {}
         mu_st, sigma_dt = {}, {}
         rank_lower_dt, rank_upper_dt = {}, {}
-        n_start, n_end, n_step = 10, 130, 10
+        n_start, n_end, n_step = 20, 130, 10
         x_large_size = sample_morris.sample(problem, n_end, num_levels=4, seed=1010)
         for i in range(n_start, n_end, n_step):
             # partial ordering
@@ -43,6 +43,13 @@ def morris_ranking(cache_file):
             partial_order[key] = {j: list(rank_list[j]) for j in range(len(rank_list))}
 
             #save results returned from Morris if needed
+            if i == 20:
+                df = pd.DataFrame(columns=['mu_st', 'rank_lower', 'rank_upper'])
+                df['mu_st'] = sa_dict['mu_star']
+                df['rank_lower'] = conf_lower
+                df['rank_upper'] = conf_upper
+                df.to_csv('test.csv')
+            
             mu_st[key] = sa_dict['mu_star']
             rank_lower_dt[key] = conf_lower
             rank_upper_dt[key] = conf_upper
@@ -62,7 +69,7 @@ a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
 
 # sensitivity analysis with Morris
 outer_path = f'../output/adaptive_replicates/morris/'
-cache_file = f'{outer_path}morris.json'
+cache_file = f'{outer_path}morris_test.json'
 file_exists = os.path.exists(cache_file)
 if file_exists:
     partial_order = morris_ranking(cache_file)
