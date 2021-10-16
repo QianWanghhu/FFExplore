@@ -3,7 +3,7 @@ FFExplore
 
 Explores the effect of factor fixing on model outputs.
 
-Companion code for the paper submitted to Envrionmental Modelling & Software. Code written by Qian Wang (@QianWanghhu) with input from Takuya Iwanaga (@ConnectedSystems) and released under the MIT license.
+Companion code for the paper submitted to Environmental Modelling & Software. Code written by Qian Wang (@QianWanghhu) with input from Takuya Iwanaga (@ConnectedSystems) and released under the MIT license.
 Note that the code generates example results which could be slightly different in terms of factor rankings without affecting conclusions in the paper.
 
 **To recreate results:**
