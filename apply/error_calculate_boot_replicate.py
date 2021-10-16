@@ -16,8 +16,8 @@ from utils.sample_replicates import replicates_process
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
 
 # sensitivity analysis with Morris
-outer_path = f'../output/adaptive_replicates/morris/'
-cache_file = f'{outer_path}morris_level4.json'
+outer_path = MORRIS_DATA_DIR
+cache_file = f'{outer_path}morris.json'
 file_exists = os.path.exists(cache_file)
 
 # Define the factor set to fix and the sample size to use
@@ -29,7 +29,7 @@ x_default = 0.25
 r_range = [1]
 for r in r_range:
     print(f'--------------------- bootstrap------------------------')
-    desti_folder = ['bootstrap_mc']
+    desti_folder = ['bootstrap_mc_test']
     out_path  = [f'{outer_path}{f}/' for f in desti_folder]
     for f in out_path: 
         if not os.path.exists(f): os.makedirs(f)
@@ -40,16 +40,16 @@ for r in r_range:
     np.savetxt(f'{out_path[0]}samples_mc.txt', samples_boot)
     nstep = int(r * 100)
     nsubsets = int(samples_boot.shape[0] / nstep); nboot=1000
-    loop_error_metrics(out_path[0], x_fix_set, x_default, nsubsets, 1, len_params, 
-        samples_boot, evaluate, boot, file_exists, a = a, nboot = nboot, save_file=True, nstep = nstep)
+    # loop_error_metrics(out_path[0], x_fix_set, x_default, nsubsets, 1, len_params, 
+    #     samples_boot, evaluate, boot, file_exists, a = a, nboot = nboot, save_file=True, nstep = nstep)
 
 # calculate error metrics with replicate sampling.
 # get input samples
-r_range = [*np.arange(10, 100, 10), *np.arange(100, 1001, 100)]
+r_range = [*np.arange(10, 100, 10), *np.arange(100, 201, 100)]
 for r in r_range:
     print(f'--------------------- Replicate = {r}------------------------')
     desti_folder = ['vertical']
-    out_path  = [f'{outer_path}{f}/r{r}/' for f in desti_folder]
+    out_path  = [f'{outer_path}{f}_test/r{r}/' for f in desti_folder]
     for f in out_path: 
         if not os.path.exists(f): os.makedirs(f)
     
@@ -60,7 +60,7 @@ for r in r_range:
     boot = False
     nstep = 10
     nsubsets = int(samples_vertical.shape[0] / 10); nstart = 0; nboot=1
-    loop_error_metrics(out_path[1], x_fix_set, x_default, nsubsets, r, len_params, 
+    loop_error_metrics(out_path[0], x_fix_set, x_default, nsubsets, r, len_params, 
         samples_vertical, evaluate, boot, file_exists, a = a, nboot = nboot, save_file=True, nstep=nstep)
 
     #Calculate the standard error and mean

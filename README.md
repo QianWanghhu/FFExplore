@@ -3,7 +3,7 @@ FFExplore
 
 Explores the effect of factor fixing on model outputs.
 
-Companion code for the paper submitted to Reliability Engineering and System Safety. Code written by Qian Wang (@QianWanghhu) with input from Takuya Iwanaga (@ConnectedSystems) and released under the MIT license.
+Companion code for the paper submitted to Envrionmental Modelling & Software. Code written by Qian Wang (@QianWanghhu) with input from Takuya Iwanaga (@ConnectedSystems) and released under the MIT license.
 Note that the code generates example results which could be slightly different in terms of factor rankings without affecting conclusions in the paper.
 
 **To recreate results:**
@@ -40,9 +40,9 @@ Note that the code generates example results which could be slightly different i
 
    All instructions here assume the code is being run from the project root directory.
 
-   Run `apply/apply_Morris.py` and `apply/apply_Sobol.py`
+   Run `apply/Morris_sa.py`, `apply/Sobol_sa.py`, `error_calculate_boot_replicate` and `default_evaluation`
 
-5. To create plots, run `apply/create_figures.py`
+5. To create plots, run `plotting.ipynb`
 
    Note that an Excel file will be created in the case of Figure 4 and further polishing work may be needed to achieve the Figure 4 as the one in the paper.
 
@@ -60,7 +60,8 @@ $ cd ..
 
 # Edit apply/settings.py if needed
 
-$ python apply/apply_Morris.py
-$ python apply/apply_Sobol.py
-$ python apply/create_figures.py
+$ python apply/Morris_sa.py
+$ python apply/Sobol_sa.py
+$ python apply/error_calculate_boot_replicate.py
+$ python default_evaluation.py
 ```

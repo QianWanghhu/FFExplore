@@ -48,7 +48,7 @@ def morris_ranking(cache_file):
                 df['mu_st'] = sa_dict['mu_star']
                 df['rank_lower'] = conf_lower
                 df['rank_upper'] = conf_upper
-                df.to_csv('test.csv')
+                df.to_csv('rankings_Morris.csv')
             
             mu_st[key] = sa_dict['mu_star']
             rank_lower_dt[key] = conf_lower
@@ -68,11 +68,11 @@ def morris_ranking(cache_file):
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
 
 # sensitivity analysis with Morris
-outer_path = f'../output/adaptive_replicates/morris/'
-cache_file = f'{outer_path}morris_test.json'
+outer_path = MORRIS_DATA_DIR
+cache_file = f'{outer_path}morris.json'
 file_exists = os.path.exists(cache_file)
 if file_exists:
     partial_order = morris_ranking(cache_file)
 else:
     partial_order, x_morris = morris_ranking(cache_file)
-    # np.savetxt(outer_path + 'morris_sample.txt', x_morris)
+    np.savetxt(outer_path + 'morris_sample.txt', x_morris)
