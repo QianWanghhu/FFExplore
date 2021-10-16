@@ -68,7 +68,7 @@ def sobol_ranking(cache_file, dummy=False):
     # END def sobol_ranking()
 
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-cache_file = f'output/adaptive_replicates/sobol/sobol.json'
+cache_file = f'{SOBOL_DATA_DIR}sobol.json'
 if os.path.exists(cache_file):
     partial_order = sobol_ranking(cache_file, dummy=False)
 else:

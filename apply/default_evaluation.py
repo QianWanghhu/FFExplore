@@ -14,11 +14,11 @@ a, x, x_bounds, _, len_params, problem = set_sobol_g_func()
 # Default evaluation
 defaults_list = np.append([0, 0.1, 0.2, 0.4, 0.5], np.round(np.linspace(0.21, 0.3, 10), 2))
 defaults_list.sort()
-out_path = 'output/morris/bootstrap_mc/'
+out_path = f'{MORRIS_DATA_DIR}bootstrap_mc/'
 samples = np.loadtxt(out_path+'samples_mc.txt')[0:1000]
 nsubsets = int(samples.shape[0] / 1000)
 ind_fix_set = [[i for i in range(15, 21)], [i for i in range(12, 21)]]
-boot=True
+boot = True
 file_exists = False
 
 for i in defaults_list:
