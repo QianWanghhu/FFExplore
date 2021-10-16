@@ -37,7 +37,7 @@ def sobol_ranking(cache_file, dummy=False):
                 # y_eval = evaluate(x_morris[-(len_params + 1) * nstep:], a)
                 y_sobol =  np.append(y_sobol, y_eval)
             sa_sobol = analyze_sobol.analyze(problem, y_sobol, 
-                            calc_second_order=False, num_resamples=1000, conf_level=0.95)
+                            calc_second_order=False, num_resamples=1000, conf_level=0.95)[0]
             # use toposort to find parameter sa block
             conf_lower = sa_sobol['total_rank_ci'][0]
             conf_upper = sa_sobol['total_rank_ci'][1]
@@ -67,9 +67,8 @@ def sobol_ranking(cache_file, dummy=False):
         return partial_order
     # END def sobol_ranking()
 
-
 a, x, x_bounds, x_names, len_params, problem = set_sobol_g_func()
-cache_file = f'../output/adaptive_replicates/sobol/sobol.json'
+cache_file = f'output/adaptive_replicates/sobol/sobol.json'
 if os.path.exists(cache_file):
     partial_order = sobol_ranking(cache_file, dummy=False)
 else:
