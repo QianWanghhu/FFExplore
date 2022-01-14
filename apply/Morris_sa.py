@@ -15,14 +15,14 @@ from utils.partial_sort import partial_rank
 
 from settings import MORRIS_DATA_DIR, SOBOL_DATA_DIR
 
-def morris_ranking(cache_file):
+def morris_ranking(cache_file, MORRIS_DATA_DIR):
     file_exists = os.path.exists(cache_file)
     if not file_exists:
         # Loop of Morris
         partial_order = {}
         mu_st, sigma_dt = {}, {}
         rank_lower_dt, rank_upper_dt = {}, {}
-        n_start, n_end, n_step = 20, 130, 10
+        n_start, n_end, n_step = 10, 130, 10
         x_large_size = sample_morris.sample(problem, n_end, num_levels=4, seed=1010)
         for i in range(n_start, n_end, n_step):
             # partial ordering
@@ -48,7 +48,7 @@ def morris_ranking(cache_file):
                 df['mu_st'] = sa_dict['mu_star']
                 df['rank_lower'] = conf_lower
                 df['rank_upper'] = conf_upper
-                df.to_csv('rankings_Morris.csv')
+                df.to_csv(f'{MORRIS_DATA_DIR}rankings_Morris.csv')
             
             mu_st[key] = sa_dict['mu_star']
             rank_lower_dt[key] = conf_lower
@@ -72,7 +72,7 @@ outer_path = MORRIS_DATA_DIR
 cache_file = f'{outer_path}morris.json'
 file_exists = os.path.exists(cache_file)
 if file_exists:
-    partial_order = morris_ranking(cache_file)
+    partial_order = morris_ranking(cache_file, MORRIS_DATA_DIR)
 else:
-    partial_order, x_morris = morris_ranking(cache_file)
-    np.savetxt(outer_path + 'morris_sample.txt', x_morris)
+    partial_order, x_morris = morris_ranking(cache_file, MORRIS_DATA_DIR)
+    # np.savetxt(outer_path + 'morris_sample.txt', x_morris)
